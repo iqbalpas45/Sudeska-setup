@@ -176,7 +176,7 @@
       <div class="field">
         <label>Nama Project <span style="color:#c0392b">*</span></label>
         <input type="text" id="nama_project" placeholder="Contoh: Verifikasi PS Blok A 2026">
-        <div class="hint">Nama ini akan jadi judul form dan nama folder ZIP</div>
+        <div class="hint">Nama ini akan jadi judul form dan nama file XLSX</div>
       </div>
       <div class="field">
         <label>Nama KTH / Kelompok <span style="color:#c0392b">*</span></label>
@@ -259,7 +259,7 @@
   <div class="card">
     <div class="card-title"><span class="step-badge">3</span> Generate &amp; Download</div>
     <p style="font-size:0.84rem;color:#555;margin-bottom:14px;">
-      Klik tombol di bawah untuk membuat file XLSForm. File CSV insker tetap memakai file master yang sudah ada.
+      Klik tombol di bawah untuk membuat satu file XLSForm mandiri. Data CSV yang diupload di atas akan dimasukkan ke dalam XLSX hasil generate.
     </p>
     <button class="btn-generate" onclick="generate()">⬇&nbsp; Generate &amp; Download XLSX</button>
     <div class="error-msg" id="error_msg"></div>
@@ -271,7 +271,7 @@
       <p style="font-size:0.82rem;color:#2e7d32;font-weight:600;margin:12px 0 6px;">Langkah upload ke KoboToolbox:</p>
       <ol class="steps-list">
         <li>Login ke <strong>kobotoolbox.org</strong> → klik <strong>+ New</strong> → <strong>Upload an XLSForm</strong> → pilih file <strong>Sudeska_RT_*.xlsx</strong></li>
-        <li>Buka project yang baru dibuat → <strong>Settings</strong> → <strong>Media</strong> → upload file <strong>master_insker.csv</strong> yang sudah tersedia di folder kerja</li>
+        <li>File ini sudah memuat data PAL dari CSV input, jadi tidak perlu upload <strong>master_insker.csv</strong> ke Media</li>
         <li>Klik <strong>Deploy</strong> (atau Redeploy jika sudah pernah dideploy)</li>
         <li>Salin link form → bagikan ke petugas lapangan</li>
       </ol>
@@ -372,18 +372,35 @@ function clearCSV() {
 function getPALData() { return palData; }
 
 // ─────────────────────────────────────────────
-// CSV
+// LOOKUP INTERNAL XLSX
 // ─────────────────────────────────────────────
-function csvEsc(v) {
-  const s = String(v);
-  return (s.includes(',') || s.includes('"') || s.includes('\n'))
-    ? '"' + s.replace(/"/g, '""') + '"' : s;
+function xlsStr(value) {
+  return String(value ?? '').replace(/'/g, "''");
+}
+
+function buildLookupCalculation(rows, fieldName, numberResult = false) {
+  let expr = numberResult ? '0' : "''";
+  for (let index = rows.length - 1; index >= 0; index--) {
+    const row = rows[index];
+    const key = Number(String(row.no_urut).trim());
+    if (!Number.isFinite(key)) continue;
+    const rawValue = row[fieldName] ?? '';
+    const valueExpr = numberResult
+      ? String(Number(rawValue) || 0)
+      : "'" + xlsStr(rawValue) + "'";
+    expr = "if(${no_urut_pal} = " + key + ", " + valueExpr + ", " + expr + ")";
+  }
+  return expr;
 }
 // ─────────────────────────────────────────────
 // XLSForm (survey rows tetap sama, hanya default field hidden yg berubah)
 // ─────────────────────────────────────────────
-function buildXLSForm(skala, namaKTH, utmZone, namaProject) {
+function buildXLSForm(skala, namaKTH, utmZone, namaProject, palRows) {
   const H = ["type","name","label","hint","required","required_message","default","calculation","appearance","read_only","relevant","constraint","constraint_message"];
+  const palMasterCalc = buildLookupCalculation(palRows, 'pal');
+  const xInskerCalc = buildLookupCalculation(palRows, 'x_insker', true);
+  const yInskerCalc = buildLookupCalculation(palRows, 'y_insker', true);
+  const ketInskerCalc = buildLookupCalculation(palRows, 'keterangan_insker');
 
   const S = [
     // ── Hidden (admin-set) ──────────────────────────────────────────────────────
@@ -395,11 +412,11 @@ function buildXLSForm(skala, namaKTH, utmZone, namaProject) {
     // ── Input No Urut ───────────────────────────────────────────────────────────
     ["integer","no_urut_pal","Nomor urut PAL","Isi angka saja, contoh: 1","yes","Nomor urut wajib diisi","","","","","",". > 0","Nomor urut harus angka lebih dari 0"],
 
-    // ── Pulldata dari master_insker.csv ─────────────────────────────────────────
-    ["calculate","pal_master","","","","","","pulldata('master_insker', 'pal', 'no_urut', ${no_urut_pal})","","","","",""],
-    ["calculate","x_insker","","","","","","pulldata('master_insker', 'x_insker', 'no_urut', ${no_urut_pal})","","","","",""],
-    ["calculate","y_insker","","","","","","pulldata('master_insker', 'y_insker', 'no_urut', ${no_urut_pal})","","","","",""],
-    ["calculate","ket_insker","","","","","","pulldata('master_insker', 'keterangan_insker', 'no_urut', ${no_urut_pal})","","","","",""],
+    // ── Lookup internal dari CSV generator ──────────────────────────────────────
+    ["calculate","pal_master","","","","","",palMasterCalc,"","","","",""],
+    ["calculate","x_insker","","","","","",xInskerCalc,"","","","",""],
+    ["calculate","y_insker","","","","","",yInskerCalc,"","","","",""],
+    ["calculate","ket_insker","","","","","",ketInskerCalc,"","","","",""],
 
     // ── Toleransi & tanggal ─────────────────────────────────────────────────────
     ["calculate","tol_mm","","","","","","0.3 * ${skala_peta}","","","","",""],
@@ -512,7 +529,7 @@ async function generate() {
     if (kosong) { showError('⚠ Pastikan semua titik PAL sudah terisi Nama PAL, X, dan Y Insker!'); return; }
 
     const xlsxName = `Sudeska_RT_${namaProject}.xlsx`;
-    const xlsxBuf = buildXLSForm(skala, namaKTH, utmZone, namaProject);
+    const xlsxBuf = buildXLSForm(skala, namaKTH, utmZone, namaProject, palData);
     const blob = new Blob(
       [xlsxBuf],
       { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
@@ -523,7 +540,7 @@ async function generate() {
     const fileList = document.getElementById('file_list');
     fileList.innerHTML = `
       <li><span class="icon">📊</span> <strong>${xlsxName}</strong> – Upload ke KoboToolbox sebagai form</li>
-      <li><span class="icon">📄</span> <strong>master_insker.csv</strong> – Gunakan file master yang sudah ada saat upload di Settings → Media</li>
+      <li><span class="icon">📄</span> <strong>Lookup PAL tertanam</strong> – Data CSV input sudah dibawa masuk ke dalam XLSX ini</li>
     `;
     document.getElementById('output_box').style.display = 'block';
     document.getElementById('output_box').scrollIntoView({ behavior:'smooth', block:'start' });
