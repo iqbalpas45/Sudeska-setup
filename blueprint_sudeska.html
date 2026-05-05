@@ -207,7 +207,7 @@
   <h1>BLUEPRINT SISTEM SUDESKA</h1>
   <h2>Supervisi Desk Analisis Tata Batas Perhutanan Sosial &nbsp;|&nbsp; BPKH Wilayah XI Yogyakarta</h2>
   <div class="meta">
-    <span><span class="badge">v1.0</span></span>
+    <span><span class="badge">v1.1</span></span>
     <span>Tanggal: 5 Mei 2026</span>
     <span>Penyusun: BPKH Wilayah XI – Seksi PPKH</span>
     <span>Status: <span class="badge">DRAFT BLUEPRINT</span></span>
@@ -216,14 +216,15 @@
 
 <!-- NAV TABS -->
 <div class="tabs">
-  <button class="tab-btn active" onclick="showTab('overview')">📋 Overview</button>
-  <button class="tab-btn" onclick="showTab('flowchart')">🔄 Flow Chart</button>
-  <button class="tab-btn" onclick="showTab('ipo')">📊 Matriks IPO</button>
-  <button class="tab-btn" onclick="showTab('datadict')">🗂️ Kamus Data</button>
-  <button class="tab-btn" onclick="showTab('portal')">🖥️ Portal UI</button>
-  <button class="tab-btn" onclick="showTab('techstack')">⚙️ Tech Stack</button>
-  <button class="tab-btn" onclick="showTab('risk')">⚠️ Risiko</button>
-  <button class="tab-btn" onclick="showTab('roadmap')">🗓️ Roadmap</button>
+  <button class="tab-btn active" onclick="showTab('overview', this)">📋 Overview</button>
+  <button class="tab-btn" onclick="showTab('flowchart', this)">🔄 Flow Chart</button>
+  <button class="tab-btn" onclick="showTab('ipo', this)">📊 Matriks IPO</button>
+  <button class="tab-btn" onclick="showTab('datadict', this)">🗂️ Kamus Data</button>
+  <button class="tab-btn" onclick="showTab('docxauto', this)">📝 Automasi DOCX</button>
+  <button class="tab-btn" onclick="showTab('portal', this)">🖥️ Portal UI</button>
+  <button class="tab-btn" onclick="showTab('techstack', this)">⚙️ Tech Stack</button>
+  <button class="tab-btn" onclick="showTab('risk', this)">⚠️ Risiko</button>
+  <button class="tab-btn" onclick="showTab('roadmap', this)">🗓️ Roadmap</button>
 </div>
 
 <!-- ═══════════════════════ OVERVIEW ═══════════════════════════ -->
@@ -885,6 +886,77 @@
   </div>
 </div>
 
+<!-- ═══════════════════════ AUTOMASI DOCX ═════════════════════ -->
+<div id="docxauto" class="section">
+  <div class="card purple">
+    <div class="card-title">📝 Blueprint Automasi Naskah DOCX (Tahap 1 & 4)</div>
+    <table>
+      <tr><th>Dokumen</th><th>Sumber Data</th><th>Isi Utama</th><th>Output</th></tr>
+      <tr>
+        <td>Instruksi Kerja</td>
+        <td>GIS tahap 0 + metadata form</td>
+        <td>Identitas kegiatan, titik ikat, tabel titik instruksi, trayek, penutup</td>
+        <td>DOCX Instruksi Kerja</td>
+      </tr>
+      <tr>
+        <td>Berita Acara Supervisi</td>
+        <td>Rekap Kobo tahap 3 + metadata form</td>
+        <td>Para pihak, narasi pelaksanaan, tabel gabungan, kesimpulan, tanda tangan</td>
+        <td>DOCX BA Supervisi</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card blue">
+    <div class="card-title">📌 Standar Placeholder Template</div>
+    <table>
+      <tr><th>Kategori</th><th>Placeholder</th><th>Catatan</th></tr>
+      <tr><td>Header surat</td><td><code>{nomor_instruksi}</code>, <code>{tanggal_instruksi}</code>, <code>{nomor_ba}</code>, <code>{tanggal_ba}</code></td><td>Wajib diisi dari form</td></tr>
+      <tr><td>Identitas lokasi</td><td><code>{nama_kth}</code>, <code>{desa}</code>, <code>{kecamatan}</code>, <code>{kabupaten}</code>, <code>{provinsi}</code></td><td>Dari master kegiatan</td></tr>
+      <tr><td>Data teknis</td><td><code>{zona_utm}</code>, <code>{titik_ikat}</code>, <code>{luas_hasil_ha}</code>, <code>{panjang_batas_m}</code></td><td>GIS + form</td></tr>
+      <tr><td>Blok tim</td><td><code>{#tim_supervisi}{nama} - {nip} - {jabatan}{/tim_supervisi}</code></td><td>Loop anggota tim</td></tr>
+      <tr><td>Blok tabel utama</td><td><code>{#tabel_koordinat}...{/tabel_koordinat}</code></td><td>Loop baris per titik</td></tr>
+      <tr><td>Penutup</td><td><code>{kesimpulan}</code>, <code>{rekomendasi}</code>, <code>{pejabat_penandatangan}</code></td><td>Wajib validasi sebelum generate</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔗 Mapping Data Kobo → Tabel BA</div>
+    <table>
+      <tr><th>Kolom BA</th><th>Sumber Kobo/rekap</th><th>Transformasi</th></tr>
+      <tr><td>Nomor Titik/Patok</td><td><code>out_nomor_titik</code> / <code>pal_master</code></td><td>Pilih <code>out_nomor_titik</code>, fallback ke <code>pal_master</code></td></tr>
+      <tr><td>Instruksi mT / mS</td><td><code>out_instruksi_mt</code>, <code>out_instruksi_ms</code></td><td>Format angka 4 desimal</td></tr>
+      <tr><td>Pelaksanaan mT / mS</td><td><code>out_penataan_mt</code>, <code>out_penataan_ms</code></td><td>Kosong -> isi <code>-</code></td></tr>
+      <tr><td>Supervisi mT / mS</td><td><code>out_supervisi_mt</code>, <code>out_supervisi_ms</code></td><td>Kosong -> isi <code>-</code></td></tr>
+      <tr><td>Keterangan</td><td><code>out_keterangan_laporan</code>, <code>catatan_lapangan</code></td><td>Prioritas <code>out_keterangan_laporan</code></td></tr>
+      <tr><td>Status Validasi</td><td><code>status_final</code></td><td>Rekap untuk bagian kesimpulan</td></tr>
+      <tr><td>Deviasi (meter)</td><td><code>jarak_m</code></td><td>Dipakai untuk ringkasan validasi</td></tr>
+    </table>
+  </div>
+
+  <div class="card yellow">
+    <div class="card-title">✅ Checklist Validasi Sebelum Generate DOCX</div>
+    <table>
+      <tr><th>No</th><th>Pengecekan</th><th>Aturan</th></tr>
+      <tr><td>1</td><td>Nomor dokumen</td><td><code>nomor_instruksi</code> / <code>nomor_ba</code> tidak boleh kosong</td></tr>
+      <tr><td>2</td><td>Tanggal dokumen</td><td>Format tanggal valid (dd-mm-yyyy)</td></tr>
+      <tr><td>3</td><td>Data tabel</td><td>Minimal 1 baris titik pada <code>tabel_koordinat</code></td></tr>
+      <tr><td>4</td><td>Kolom kunci</td><td>Nomor titik + koordinat instruksi harus ada</td></tr>
+      <tr><td>5</td><td>Penandatangan</td><td><code>pejabat_penandatangan</code> wajib terisi</td></tr>
+      <tr><td>6</td><td>Konsistensi identitas</td><td><code>nama_kth</code> dan lokasi harus sama dengan metadata kegiatan</td></tr>
+      <tr><td>7</td><td>Keterangan kosong</td><td>Jika kosong, isi otomatis dengan <code>-</code></td></tr>
+    </table>
+    <div style="margin-top:12px; background:#263238; color:#eceff1; border-radius:8px; padding:12px 14px; font-family:monospace; font-size:11px; line-height:1.7;">
+      <strong>Contoh JSON payload generator:</strong><br>
+      {<br>
+      &nbsp;&nbsp;"metadata": {"nomor_ba":"...","tanggal_ba":"...","nama_kth":"..."},<br>
+      &nbsp;&nbsp;"tim_supervisi": [{"nama":"...","nip":"...","jabatan":"..."}],<br>
+      &nbsp;&nbsp;"tabel_koordinat": [{"nomor_titik":"CR.1","x_instruksi":673552,"y_instruksi":9263399,"x_pelaksanaan":673552,"y_pelaksanaan":9263399,"x_supervisi":"-","y_supervisi":"-","keterangan":"-"}]<br>
+      }
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════════ PORTAL UI ═════════════════════════ -->
 <div id="portal" class="section">
   <div class="card">
@@ -1244,11 +1316,13 @@
 </div><!-- end .content -->
 
 <script>
-  function showTab(id) {
+  function showTab(id, btn) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    event.target.classList.add('active');
+    if (btn) {
+      btn.classList.add('active');
+    }
   }
 </script>
 </body>
