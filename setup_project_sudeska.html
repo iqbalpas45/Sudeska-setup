@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sudeska – Setup Project KoboToolbox</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #eef2f7; color: #222; }
+
+    header {
+      background: linear-gradient(135deg, #1F4E79, #2e6da4);
+      color: #fff; padding: 20px 36px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    header .logo { font-size: 2rem; }
+    header h1 { font-size: 1.25rem; font-weight: 700; }
+    header p  { font-size: 0.82rem; opacity: 0.82; margin-top: 3px; }
+
+    .container { max-width: 960px; margin: 28px auto; padding: 0 16px 40px; }
+
+    .card {
+      background: #fff; border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.09);
+      padding: 24px 28px; margin-bottom: 22px;
+    }
+    .card-title {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1rem; font-weight: 700; color: #1F4E79;
+      border-bottom: 2px solid #e2eaf5; padding-bottom: 10px; margin-bottom: 18px;
+    }
+    .step-badge {
+      background: #1F4E79; color: #fff;
+      border-radius: 50%; width: 26px; height: 26px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; font-weight: 800; flex-shrink: 0;
+    }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px; }
+    .form-grid.cols3 { grid-template-columns: 2fr 1fr 1fr; }
+    .form-grid.col1  { grid-template-columns: 1fr; }
+    @media(max-width:640px){ .form-grid,.form-grid.cols3,.form-grid.col1 { grid-template-columns:1fr; } }
+
+    .field label {
+      display: block; font-size: 0.78rem; font-weight: 600;
+      color: #555; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .3px;
+    }
+    .field input[type=text],
+    .field select {
+      width: 100%; padding: 9px 12px; border: 1px solid #ccd5e0;
+      border-radius: 6px; font-size: 0.9rem; background: #fafbfc;
+      transition: border .15s, box-shadow .15s;
+    }
+    .field input:focus, .field select:focus {
+      outline: none; border-color: #1F4E79;
+      box-shadow: 0 0 0 3px rgba(31,78,121,0.12); background: #fff;
+    }
+    .field .hint { font-size: 0.74rem; color: #888; margin-top: 3px; }
+
+    /* CSV Upload */
+    .upload-area {
+      border: 2px dashed #90b8e0; border-radius: 8px;
+      background: #f5f9ff; padding: 28px 20px; text-align: center;
+      cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .upload-area:hover, .upload-area.drag { border-color: #1F4E79; background: #e8f1fb; }
+    .upload-area .up-icon { font-size: 2rem; margin-bottom: 8px; }
+    .upload-area p { font-size: 0.85rem; color: #555; margin: 4px 0; }
+    .upload-area strong { color: #1F4E79; }
+    #csv_input { display: none; }
+    .format-hint {
+      background: #fafbfc; border: 1px solid #dde5f0; border-radius: 6px;
+      padding: 10px 14px; font-size: 0.78rem; color: #555;
+      margin-top: 12px; font-family: monospace;
+    }
+    .format-hint b { color: #1F4E79; }
+    /* PAL Table (preview only) */
+    .tbl-wrap { overflow-x: auto; margin-top: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    thead th {
+      background: #1F4E79; color: #fff;
+      padding: 9px 10px; text-align: left; font-weight: 600;
+      white-space: nowrap;
+    }
+    thead th:first-child { border-radius: 6px 0 0 0; }
+    thead th:last-child  { border-radius: 0 6px 0 0; }
+    tbody tr:nth-child(even) { background: #f5f8fc; }
+    tbody tr:hover { background: #eef3fb; }
+    tbody td { padding: 7px 10px; border-bottom: 1px solid #e5eaf2; font-size: 0.83rem; }
+    .td-no { width: 40px; text-align: center; color: #888; font-weight: 700; }
+    .preview-count {
+      font-size: 0.8rem; color: #2e7d32; background: #e8f5e9;
+      border: 1px solid #a5d6a7; border-radius: 5px;
+      padding: 6px 12px; display: inline-block; margin-top: 10px;
+    }
+    .btn-clear {
+      background: #fde8e8; color: #c0392b; border: 1px solid #f5b7b1;
+      border-radius: 5px; padding: 5px 14px; cursor: pointer;
+      font-size: 0.8rem; margin-left: 10px;
+    }
+    .btn-clear:hover { background: #f9c9c9; }
+
+    /* Toleransi info */
+    .tol-box {
+      background: #f0f6ff; border: 1px solid #b8d4f0; border-radius: 7px;
+      padding: 12px 16px; margin-top: 4px; font-size: 0.84rem; color: #1a3c5e;
+    }
+    .tol-box strong { font-size: 1.05rem; }
+
+    /* Generate button */
+    .btn-generate {
+      width: 100%; background: #1F4E79; color: #fff;
+      border: none; border-radius: 8px; padding: 14px 24px;
+      font-size: 1.05rem; font-weight: 700; cursor: pointer;
+      letter-spacing: .3px; transition: background .15s, transform .1s;
+    }
+    .btn-generate:hover { background: #174069; }
+    .btn-generate:active { transform: scale(0.99); }
+
+    /* Output box */
+    .output-box {
+      display: none;
+      background: #e8f5e9; border: 1.5px solid #a5d6a7;
+      border-radius: 8px; padding: 16px 20px; margin-top: 18px;
+    }
+    .output-box h3 { color: #2e7d32; font-size: 0.95rem; margin-bottom: 10px; }
+    .file-list { list-style: none; padding: 0; }
+    .file-list li {
+      padding: 6px 10px; background: #fff; border-radius: 5px;
+      margin-bottom: 6px; font-size: 0.84rem; border: 1px solid #c8e6c9;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .file-list .icon { font-size: 1rem; }
+
+    .steps-list { counter-reset: step; list-style: none; padding: 0; margin-top: 10px; }
+    .steps-list li {
+      counter-increment: step;
+      padding: 6px 0 6px 32px; font-size: 0.83rem; color: #333;
+      border-bottom: 1px solid #c8e6c9; position: relative;
+    }
+    .steps-list li:last-child { border-bottom: none; }
+    .steps-list li::before {
+      content: counter(step);
+      position: absolute; left: 0; top: 6px;
+      background: #388e3c; color: #fff;
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700;
+    }
+
+    .error-msg {
+      color: #c0392b; background: #fde8e8;
+      border: 1px solid #f5b7b1; border-radius: 6px;
+      padding: 10px 14px; font-size: 0.84rem; margin-top: 10px; display: none;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📋</div>
+  <div>
+    <h1>Sudeska – Setup Project KoboToolbox</h1>
+    <p>Siapkan XLSForm dan data insker dalam satu langkah — hasil ZIP siap upload ke Kobo</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- STEP 1 -->
+  <div class="card">
+    <div class="card-title"><span class="step-badge">1</span> Informasi Project</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Nama Project <span style="color:#c0392b">*</span></label>
+        <input type="text" id="nama_project" placeholder="Contoh: Verifikasi PS Blok A 2026">
+        <div class="hint">Nama ini akan jadi judul form dan nama folder ZIP</div>
+      </div>
+      <div class="field">
+        <label>Nama KTH / Kelompok <span style="color:#c0392b">*</span></label>
+        <input type="text" id="nama_kth" placeholder="Contoh: KTH Maju">
+      </div>
+    </div>
+    <div class="form-grid cols3">
+      <div class="field">
+        <label>Skala Peta <span style="color:#c0392b">*</span></label>
+        <select id="skala" onchange="updateToleransi()">
+          <option value="1000">1 : 1.000</option>
+          <option value="2500">1 : 2.500</option>
+          <option value="5000" selected>1 : 5.000</option>
+          <option value="10000">1 : 10.000</option>
+          <option value="25000">1 : 25.000</option>
+          <option value="50000">1 : 50.000</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Zona UTM <span style="color:#c0392b">*</span></label>
+        <select id="utm_zone">
+          <option value="48">48S – Banten / Jakarta / Jabar</option>
+          <option value="49" selected>49S – Jabar / Jateng / Jatim</option>
+          <option value="50">50S – Jatim</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Toleransi Otomatis</label>
+        <div class="tol-box">
+          <strong id="tol_display">1.50 m</strong>
+          <div style="font-size:0.74rem;margin-top:2px;opacity:.7">= 0.3 × skala ÷ 1000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card">
+    <div class="card-title"><span class="step-badge">2</span> Data Titik PAL Insker</div>
+
+    <div class="upload-area" id="upload_area" onclick="document.getElementById('csv_input').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="handleDrop(event)">
+      <div class="up-icon">📂</div>
+      <p><strong>Klik untuk pilih file CSV</strong> atau drag &amp; drop ke sini</p>
+      <p>Format: <code>No, Urut, Pal, X, Y, keterangan, Poligon</code></p>
+    </div>
+    <input type="file" id="csv_input" accept=".csv" onchange="loadCSV(this.files[0])">
+
+    <div class="format-hint">
+      <b>Format CSV yang diharapkan (baris pertama = header):</b><br>
+      No , Urut , Pal , X , Y , keterangan , Poligon<br>
+      1 , 1 , RB.1=B.HP , 400387.5 , 9220438 , Batas Luar , 1<br>
+      2 , 2 , RB.2 , 400446.4 , 9220512 , , 1<br>
+    </div>
+
+    <div id="preview_area" style="display:none">
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:14px">
+        <span class="preview-count" id="preview_count"></span>
+        <button class="btn-clear" onclick="clearCSV()">✕ Hapus &amp; upload ulang</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th class="td-no">No</th>
+            <th>Urut</th>
+            <th>PAL</th>
+            <th>X Insker (m)</th>
+            <th>Y Insker (m)</th>
+            <th>Keterangan</th>
+          </tr></thead>
+          <tbody id="pal_preview"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="card">
+    <div class="card-title"><span class="step-badge">3</span> Generate &amp; Download</div>
+    <p style="font-size:0.84rem;color:#555;margin-bottom:14px;">
+      Klik tombol di bawah — semua file disiapkan otomatis dan diunduh dalam satu paket ZIP.
+    </p>
+    <button class="btn-generate" onclick="generate()">⬇&nbsp; Generate &amp; Download ZIP</button>
+    <div class="error-msg" id="error_msg"></div>
+
+    <div class="output-box" id="output_box">
+      <h3>✔ File berhasil dibuat dan diunduh!</h3>
+      <p style="font-size:0.82rem;color:#444;margin-bottom:10px;">Isi ZIP yang diunduh:</p>
+      <ul class="file-list" id="file_list"></ul>
+      <p style="font-size:0.82rem;color:#2e7d32;font-weight:600;margin:12px 0 6px;">Langkah upload ke KoboToolbox:</p>
+      <ol class="steps-list">
+        <li>Login ke <strong>kobotoolbox.org</strong> → klik <strong>+ New</strong> → <strong>Upload an XLSForm</strong> → pilih file <strong>Sudeska_RT_*.xlsx</strong></li>
+        <li>Buka project yang baru dibuat → <strong>Settings</strong> → <strong>Media</strong> → upload <strong>master_insker.csv</strong></li>
+        <li>Klik <strong>Deploy</strong> (atau Redeploy jika sudah pernah dideploy)</li>
+        <li>Salin link form → bagikan ke petugas lapangan</li>
+      </ol>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ─────────────────────────────────────────────
+// UI HELPERS
+// ─────────────────────────────────────────────
+let palData = [];
+
+function updateToleransi() {
+  const s = parseInt(document.getElementById('skala').value);
+  document.getElementById('tol_display').textContent = (0.3 * s / 1000).toFixed(2) + ' m';
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+    else { cur += c; }
+  }
+  result.push(cur.trim());
+  return result;
+}
+
+function normalizeHeader(h) {
+  return h.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function loadCSV(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.replace(/\r/g, '').split('\n').filter(l => l.trim());
+    if (lines.length < 2) { alert('CSV kosong atau hanya berisi header.'); return; }
+    const headers = parseCSVLine(lines[0]).map(normalizeHeader);
+    // Deteksi kolom berdasarkan nama header
+    const iNo   = headers.findIndex(h => h === 'no');
+    const iUrut = headers.findIndex(h => h === 'urut' || (h.includes('urut') && !h.includes('no')));
+    const iPal  = headers.findIndex(h => h === 'pal' || h.includes('pal') || h.includes('nama'));
+    const iX    = headers.findIndex(h => h === 'x' || (h.startsWith('x') && !h.includes('y')));
+    const iY    = headers.findIndex(h => h === 'y' || (h.startsWith('y') && !h.includes('x')));
+    const iKet  = headers.findIndex(h => h.includes('ket'));
+    const iPol  = headers.findIndex(h => h.includes('pol') || h.includes('lig'));
+    palData = [];
+    for (let i = 1; i < lines.length; i++) {
+      const cols = parseCSVLine(lines[i]);
+      if (cols.length < 2) continue;
+      const noUrut = iUrut >= 0 ? cols[iUrut] : (iNo >= 0 ? cols[iNo] : i);
+      palData.push({
+        no_urut: noUrut,
+        pal:     iPal >= 0 ? cols[iPal] : cols[2] || '',
+        x_insker: iX  >= 0 ? cols[iX]  : cols[3] || '',
+        y_insker: iY  >= 0 ? cols[iY]  : cols[4] || '',
+        keterangan_insker: iKet >= 0 ? cols[iKet] : (cols[5] || '')
+      });
+    }
+    renderPreview();
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload_area').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file && file.name.endsWith('.csv')) loadCSV(file);
+  else alert('Hanya file .csv yang diterima.');
+}
+
+function renderPreview() {
+  const tbody = document.getElementById('pal_preview');
+  tbody.innerHTML = '';
+  palData.forEach((d, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="td-no">${i+1}</td><td>${d.no_urut}</td><td>${d.pal}</td><td>${d.x_insker}</td><td>${d.y_insker}</td><td>${d.keterangan_insker||'-'}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('preview_count').textContent = `✔ ${palData.length} titik PAL berhasil dibaca`;
+  document.getElementById('preview_area').style.display = 'block';
+  document.getElementById('upload_area').style.display = 'none';
+}
+
+function clearCSV() {
+  palData = [];
+  document.getElementById('csv_input').value = '';
+  document.getElementById('preview_area').style.display = 'none';
+  document.getElementById('upload_area').style.display = 'block';
+}
+
+function getPALData() { return palData; }
+
+// ─────────────────────────────────────────────
+// CSV
+// ─────────────────────────────────────────────
+function csvEsc(v) {
+  const s = String(v);
+  return (s.includes(',') || s.includes('"') || s.includes('\n'))
+    ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function buildCSV(palData) {
+  const lines = ['no_urut,pal,x_insker,y_insker,keterangan_insker'];
+  palData.forEach(d => lines.push(
+    [d.no_urut, csvEsc(d.pal), d.x_insker, d.y_insker, csvEsc(d.keterangan_insker)].join(',')
+  ));
+  return lines.join('\r\n');
+}
+
+// ─────────────────────────────────────────────
+// XLSForm (survey rows tetap sama, hanya default field hidden yg berubah)
+// ─────────────────────────────────────────────
+function buildXLSForm(skala, namaKTH, utmZone, namaProject) {
+  const H = ["type","name","label","hint","required","required_message","default","calculation","appearance","read_only","relevant","constraint","constraint_message"];
+
+  const S = [
+    // ── Hidden (admin-set) ──────────────────────────────────────────────────────
+    ["hidden","skala_peta","","","","",String(skala),"","","","","",""],
+    ["hidden","nama_kth_prefill","","","","",namaKTH,"","","","","",""],
+    ["hidden","utm_zone","","","","",String(utmZone),"","","","","",""],
+    ["hidden","prefix_pal","","","","","RB. ","","","","","",""],
+
+    // ── Input No Urut ───────────────────────────────────────────────────────────
+    ["integer","no_urut_pal","Nomor urut PAL","Isi angka saja, contoh: 1","yes","Nomor urut wajib diisi","","","","","",". > 0","Nomor urut harus angka lebih dari 0"],
+
+    // ── Pulldata dari master_insker.csv ─────────────────────────────────────────
+    ["calculate","pal_master","","","","","","pulldata('master_insker', 'pal', 'no_urut', ${no_urut_pal})","","","","",""],
+    ["calculate","x_insker","","","","","","pulldata('master_insker', 'x_insker', 'no_urut', ${no_urut_pal})","","","","",""],
+    ["calculate","y_insker","","","","","","pulldata('master_insker', 'y_insker', 'no_urut', ${no_urut_pal})","","","","",""],
+    ["calculate","ket_insker","","","","","","pulldata('master_insker', 'keterangan_insker', 'no_urut', ${no_urut_pal})","","","","",""],
+
+    // ── Toleransi & tanggal ─────────────────────────────────────────────────────
+    ["calculate","tol_mm","","","","","","0.3 * ${skala_peta}","","","","",""],
+    ["calculate","tol_m","","","","","","if(${skala_peta} > 0, ${tol_mm} div 1000, 0)","","","","",""],
+    ["calculate","tgl_pelaksanaan","","","","","","today()","","","","",""],
+
+    // ── Group Input Petugas ─────────────────────────────────────────────────────
+    ["begin_group","grp_input","Input Petugas Lapangan","","","","","","field-list","","","",""],
+    ["select_one metode_koordinat","metode_koordinat","Metode input koordinat","Pilih cara input koordinat","yes","Pilih metode input koordinat","manual_utm","","","","","",""],
+    ["text","nama_pelaksana","Nama Pelaksana","","","","","","","","","",""],
+    ["geopoint","lokasi_gps","Ambil titik GPS otomatis","Gunakan tombol ambil lokasi pada perangkat","yes","Lokasi GPS wajib diambil","","","","","${metode_koordinat} = 'gps_otomatis'","",""],
+
+    // ── Parsing GPS ─────────────────────────────────────────────────────────────
+    ["calculate","lat_gps","","","","","","if(${metode_koordinat} = 'gps_otomatis', selected-at(${lokasi_gps}, 0), '')","","","","",""],
+    ["calculate","lon_gps","","","","","","if(${metode_koordinat} = 'gps_otomatis', selected-at(${lokasi_gps}, 1), '')","","","","",""],
+    ["calculate","acc_gps","","","","","","if(${metode_koordinat} = 'gps_otomatis', selected-at(${lokasi_gps}, 3), '')","","","","",""],
+    ["calculate","acc_gps_num","","","","","","if(string-length(normalize-space(${acc_gps})) > 0, number(${acc_gps}), 9999)","","","","",""],
+
+    // ── Konversi GPS lat/lon → UTM (WGS84 Transverse Mercator) ─────────────────
+    ["calculate","lat_rad","","","","","","number(${lat_gps}) * pi() div 180","","","","",""],
+    ["calculate","lon_rad","","","","","","number(${lon_gps}) * pi() div 180","","","","",""],
+    ["calculate","lon0_deg","","","","","","(number(${utm_zone}) * 6) - 183","","","","",""],
+    ["calculate","lon0_rad","","","","","","${lon0_deg} * pi() div 180","","","","",""],
+    ["calculate","e2","","","","","","0.0066943799901413165","","","","",""],
+    ["calculate","ep2","","","","","","${e2} div (1 - ${e2})","","","","",""],
+    ["calculate","N_gps","","","","","","6378137 div sqrt(1 - ${e2} * sin(${lat_rad}) * sin(${lat_rad}))","","","","",""],
+    ["calculate","T_gps","","","","","","tan(${lat_rad}) * tan(${lat_rad})","","","","",""],
+    ["calculate","C_gps","","","","","","${ep2} * cos(${lat_rad}) * cos(${lat_rad})","","","","",""],
+    ["calculate","A_gps","","","","","","cos(${lat_rad}) * (${lon_rad} - ${lon0_rad})","","","","",""],
+    ["calculate","M_gps","","","","","","6378137 * ((1 - ${e2} div 4 - 3 * ${e2} * ${e2} div 64 - 5 * ${e2} * ${e2} * ${e2} div 256) * ${lat_rad} - (3 * ${e2} div 8 + 3 * ${e2} * ${e2} div 32 + 45 * ${e2} * ${e2} * ${e2} div 1024) * sin(2 * ${lat_rad}) + (15 * ${e2} * ${e2} div 256 + 45 * ${e2} * ${e2} * ${e2} div 1024) * sin(4 * ${lat_rad}) - (35 * ${e2} * ${e2} * ${e2} div 3072) * sin(6 * ${lat_rad}))","","","","",""],
+    ["calculate","x_gps_utm","","","","","","0.9996 * ${N_gps} * (${A_gps} + (1 - ${T_gps} + ${C_gps}) * ${A_gps} * ${A_gps} * ${A_gps} div 6 + (5 - 18 * ${T_gps} + ${T_gps} * ${T_gps} + 72 * ${C_gps} - 58 * ${ep2}) * ${A_gps} * ${A_gps} * ${A_gps} * ${A_gps} * ${A_gps} div 120) + 500000","","","","",""],
+    ["calculate","y_gps_utm_raw","","","","","","0.9996 * (${M_gps} + ${N_gps} * tan(${lat_rad}) * (${A_gps} * ${A_gps} div 2 + (5 - ${T_gps} + 9 * ${C_gps} + 4 * ${C_gps} * ${C_gps}) * ${A_gps} * ${A_gps} * ${A_gps} * ${A_gps} div 24 + (61 - 58 * ${T_gps} + ${T_gps} * ${T_gps} + 600 * ${C_gps} - 330 * ${ep2}) * ${A_gps} * ${A_gps} * ${A_gps} * ${A_gps} * ${A_gps} * ${A_gps} div 720))","","","","",""],
+    ["calculate","y_gps_utm","","","","","","if(number(${lat_gps}) < 0, ${y_gps_utm_raw} + 10000000, ${y_gps_utm_raw})","","","","",""],
+
+    ["note","gps_info","GPS terekam: Lat ${lat_gps}, Lon ${lon_gps}, Akurasi ${acc_gps} m","","","","","","","","${metode_koordinat} = 'gps_otomatis'","",""],
+
+    // ── Koordinat Manual ────────────────────────────────────────────────────────
+    ["decimal","x_pelaksanaan","X Pelaksanaan (UTM meter)","Contoh: 400388.003","yes","X UTM wajib diisi","","","","","${metode_koordinat} = 'manual_utm' or ${metode_koordinat} = ''","",""],
+    ["decimal","y_pelaksanaan","Y Pelaksanaan (UTM meter)","Contoh: 9220439.284","yes","Y UTM wajib diisi","","","","","${metode_koordinat} = 'manual_utm' or ${metode_koordinat} = ''","",""],
+
+    // ── Foto & Catatan ──────────────────────────────────────────────────────────
+    ["image","foto_pal","Foto PAL","","","","","","","","","",""],
+    ["text","catatan_lapangan","Catatan Lapangan","Opsional saat valid. Wajib diisi jika Cek Validasi","${status_awal} = 'Cek Validasi'","Isi catatan/alasan jika status Cek Validasi","","","","","","string-length(normalize-space(.)) > 0","Catatan tidak boleh kosong jika Cek Validasi"],
+    ["end_group","grp_input","","","","","","","","","","",""],
+
+    // ── Informasi Rencana ───────────────────────────────────────────────────────
+    ["begin_group","grp_info","Informasi Rencana","","","","","","field-list","","","",""],
+    ["note","n_ringkas","PAL: ${pal_master} | No Urut: ${no_urut_pal}\nKTH: ${nama_kth_prefill}\nToleransi: ${tol_m} m\nKet: ${ket_insker}","","","","","","","","","",""],
+    ["end_group","grp_info","","","","","","","","","","",""],
+
+    // ── Kalkulasi jarak & validasi ──────────────────────────────────────────────
+    ["calculate","x_pelaksanaan_final","","","","","","if(${metode_koordinat} = 'manual_utm' or ${metode_koordinat} = '', ${x_pelaksanaan}, ${x_gps_utm})","","","","",""],
+    ["calculate","y_pelaksanaan_final","","","","","","if(${metode_koordinat} = 'manual_utm' or ${metode_koordinat} = '', ${y_pelaksanaan}, ${y_gps_utm})","","","","",""],
+    ["calculate","selisih_x","","","","","","${x_pelaksanaan_final} - number(${x_insker})","","","","",""],
+    ["calculate","selisih_y","","","","","","${y_pelaksanaan_final} - number(${y_insker})","","","","",""],
+    ["calculate","jarak_m","","","","","","sqrt(${selisih_x} * ${selisih_x} + ${selisih_y} * ${selisih_y})","","","","",""],
+    ["calculate","nilai_validasi_m","","","","","","${jarak_m}","","","","",""],
+    ["calculate","status_awal","","","","","","if(${nilai_validasi_m} <= ${tol_m}, 'Valid', 'Cek Validasi')","","","","",""],
+
+    // ── Peringatan validasi ─────────────────────────────────────────────────────
+    ["note","peringatan_valid","✔ VALID – Nilai validasi ${nilai_validasi_m} m ≤ Toleransi ${tol_m} m","","","","","","","","${status_awal} = 'Valid'","",""],
+    ["note","peringatan_cek","⚠ CEK VALIDASI – Nilai validasi ${nilai_validasi_m} m melebihi Toleransi ${tol_m} m. Isi alasan pada Catatan Lapangan.","","","","","","","","${status_awal} = 'Cek Validasi'","",""],
+
+    // ── Status final ────────────────────────────────────────────────────────────
+    ["calculate","status_final","","","","","","if(${status_awal} = 'Valid', 'Valid', if(string-length(normalize-space(${catatan_lapangan})) > 0, concat('Menyesuaikan existing: ', ${catatan_lapangan}), 'Cek Validasi'))","","","","",""],
+  ];
+
+  const C = [
+    ["list_name","name","label"],
+    ["metode_koordinat","manual_utm","Manual UTM (input X/Y)"],
+    ["metode_koordinat","gps_otomatis","Otomatis GPS Perangkat"],
+  ];
+
+  const slug = namaProject.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+  const SET = [
+    ["form_title","form_id","version","instance_name"],
+    [`Sudeska RT – ${namaProject}`, `sudeska_${slug}`, "1", "concat(${pal_master}, ' – ', ${status_final})"],
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([H,...S]), "survey");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(C),        "choices");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(SET),      "settings");
+  return XLSX.write(wb, { type:'arraybuffer', bookType:'xlsx' });
+}
+
+// ─────────────────────────────────────────────
+// PANDUAN TEXT
+// ─────────────────────────────────────────────
+function buildPanduan(namaProject, namaKTH, skala, utmZone) {
+  const tol = (0.3 * Number(skala) / 1000).toFixed(2);
+  const now = new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
+  return `PANDUAN UPLOAD PROJECT SUDESKA KE KOBOTOOLBOX
+================================================
+Dibuat   : ${now}
+Project  : ${namaProject}
+KTH      : ${namaKTH}
+Skala    : 1 : ${Number(skala).toLocaleString('id')}
+Toleransi: ${tol} meter
+Zona UTM : ${utmZone}
+================================================
+
+ISI FOLDER ZIP INI:
+  - Sudeska_RT_${namaProject}.xlsx  → XLSForm form petugas
+  - master_insker.csv               → Data titik PAL insker
+  - panduan_upload.txt              → File ini
+
+LANGKAH UPLOAD KE KOBOTOOLBOX:
+  1. Login ke https://www.kobotoolbox.org
+  2. Klik "+ New" → "Upload an XLSForm"
+     Pilih: Sudeska_RT_${namaProject}.xlsx
+  3. Buka project baru → Settings → Media
+     Upload: master_insker.csv
+  4. Klik Deploy / Redeploy
+  5. Salin link form → bagikan ke petugas lapangan
+
+CATATAN ALUR PETUGAS:
+  - Isi No Urut PAL (angka sesuai master_insker.csv)
+  - Pilih metode koordinat: Manual UTM atau GPS Otomatis
+  - Jika Cek Validasi → WAJIB isi Catatan Lapangan
+  - Status tersimpan: Valid / Menyesuaikan existing / Cek Validasi
+
+================================================`;
+}
+
+// ─────────────────────────────────────────────
+// GENERATE & DOWNLOAD ZIP
+// ─────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById('error_msg');
+  el.textContent = msg; el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+async function generate() {
+  document.getElementById('output_box').style.display = 'none';
+
+  const namaProject = document.getElementById('nama_project').value.trim();
+  const namaKTH     = document.getElementById('nama_kth').value.trim();
+  const skala       = document.getElementById('skala').value;
+  const utmZone     = document.getElementById('utm_zone').value;
+  const palData     = getPALData();
+
+  if (!namaProject) { showError('⚠ Nama Project wajib diisi!'); return; }
+  if (!namaKTH)     { showError('⚠ Nama KTH wajib diisi!'); return; }
+  if (palData.length === 0) { showError('⚠ Tambahkan minimal 1 titik PAL!'); return; }
+  const kosong = palData.find(d => !d.pal || !d.x_insker || !d.y_insker);
+  if (kosong) { showError('⚠ Pastikan semua titik PAL sudah terisi Nama PAL, X, dan Y Insker!'); return; }
+
+  const xlsxName = `Sudeska_RT_${namaProject}.xlsx`;
+  const csvName  = 'master_insker.csv';
+  const txtName  = 'panduan_upload.txt';
+  const zipName  = `${namaProject}_Sudeska.zip`;
+
+  const xlsxBuf = buildXLSForm(skala, namaKTH, utmZone, namaProject);
+  const csvStr  = buildCSV(palData);
+  const txtStr  = buildPanduan(namaProject, namaKTH, skala, utmZone);
+
+  const zip = new JSZip();
+  const folder = zip.folder(`${namaProject}_Sudeska`);
+  folder.file(xlsxName, xlsxBuf);
+  folder.file(csvName,  csvStr);
+  folder.file(txtName,  txtStr);
+
+  const blob = await zip.generateAsync({ type:'blob', compression:'DEFLATE' });
+  saveAs(blob, zipName);
+
+  // Tampilkan info output
+  const fileList = document.getElementById('file_list');
+  fileList.innerHTML = `
+    <li><span class="icon">📊</span> <strong>${xlsxName}</strong> – Upload ke KoboToolbox sebagai form</li>
+    <li><span class="icon">📄</span> <strong>${csvName}</strong> – Upload ke Settings → Media (${palData.length} titik PAL)</li>
+    <li><span class="icon">📝</span> <strong>${txtName}</strong> – Panduan langkah upload</li>
+  `;
+  document.getElementById('output_box').style.display = 'block';
+  document.getElementById('output_box').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+updateToleransi();
+</script>
+</body>
+</html>
