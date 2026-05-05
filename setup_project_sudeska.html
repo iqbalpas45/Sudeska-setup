@@ -457,6 +457,10 @@ function buildXLSForm(skala, namaKTH, utmZone, namaProject, palRows) {
     ["decimal","x_pelaksanaan","X Pelaksanaan (UTM meter)","Contoh: 400388.003","yes","X UTM wajib diisi","","","","","${metode_koordinat} = 'manual_utm' or ${metode_koordinat} = ''","",""],
     ["decimal","y_pelaksanaan","Y Pelaksanaan (UTM meter)","Contoh: 9220439.284","yes","Y UTM wajib diisi","","","","","${metode_koordinat} = 'manual_utm' or ${metode_koordinat} = ''","",""],
 
+    // ── Hasil Penataan Batas (opsional, untuk format laporan) ──────────────────
+    ["decimal","x_penataan_batas","X Hasil Penataan Batas (UTM meter)","Opsional untuk format laporan","","","","","","","","",""],
+    ["decimal","y_penataan_batas","Y Hasil Penataan Batas (UTM meter)","Opsional untuk format laporan","","","","","","","","",""],
+
     // ── Foto & Catatan ──────────────────────────────────────────────────────────
     ["image","foto_pal","Foto PAL","","","","","","","","","",""],
     ["text","catatan_lapangan","Catatan Lapangan","Opsional saat valid. Wajib diisi jika Cek Validasi","${status_awal} = 'Cek Validasi'","Isi catatan/alasan jika status Cek Validasi","","","","","","string-length(normalize-space(.)) > 0","Catatan tidak boleh kosong jika Cek Validasi"],
@@ -475,6 +479,16 @@ function buildXLSForm(skala, namaKTH, utmZone, namaProject, palRows) {
     ["calculate","jarak_m","","","","","","sqrt(${selisih_x} * ${selisih_x} + ${selisih_y} * ${selisih_y})","","","","",""],
     ["calculate","nilai_validasi_m","","","","","","${jarak_m}","","","","",""],
     ["calculate","status_awal","","","","","","if(${nilai_validasi_m} <= ${tol_m}, 'Valid', 'Cek Validasi')","","","","",""],
+
+    // ── Output laporan (siap ekspor tabel) ───────────────────────────────────────
+    ["calculate","out_nomor_titik","","","","","","${pal_master}","","","","",""],
+    ["calculate","out_instruksi_mt","","","","","","number(${x_insker})","","","","",""],
+    ["calculate","out_instruksi_ms","","","","","","number(${y_insker})","","","","",""],
+    ["calculate","out_penataan_mt","","","","","","if(string-length(normalize-space(${x_penataan_batas})) > 0, number(${x_penataan_batas}), '')","","","","",""],
+    ["calculate","out_penataan_ms","","","","","","if(string-length(normalize-space(${y_penataan_batas})) > 0, number(${y_penataan_batas}), '')","","","","",""],
+    ["calculate","out_supervisi_mt","","","","","","${x_pelaksanaan_final}","","","","",""],
+    ["calculate","out_supervisi_ms","","","","","","${y_pelaksanaan_final}","","","","",""],
+    ["calculate","out_keterangan_laporan","","","","","","if(${status_awal} = 'Valid', 'Sesuai', if(string-length(normalize-space(${catatan_lapangan})) > 0, ${catatan_lapangan}, 'Cek Validasi'))","","","","",""],
 
     // ── Peringatan validasi ─────────────────────────────────────────────────────
     ["note","peringatan_valid","✔ VALID – Nilai validasi ${nilai_validasi_m} m ≤ Toleransi ${tol_m} m","","","","","","","","${status_awal} = 'Valid'","",""],
