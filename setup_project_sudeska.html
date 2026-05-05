@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sudeska – Setup Project KoboToolbox</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -260,19 +259,19 @@
   <div class="card">
     <div class="card-title"><span class="step-badge">3</span> Generate &amp; Download</div>
     <p style="font-size:0.84rem;color:#555;margin-bottom:14px;">
-      Klik tombol di bawah — semua file disiapkan otomatis dan diunduh dalam satu paket ZIP.
+      Klik tombol di bawah untuk membuat file XLSForm. File CSV insker tetap memakai file master yang sudah ada.
     </p>
-    <button class="btn-generate" onclick="generate()">⬇&nbsp; Generate &amp; Download ZIP</button>
+    <button class="btn-generate" onclick="generate()">⬇&nbsp; Generate &amp; Download XLSX</button>
     <div class="error-msg" id="error_msg"></div>
 
     <div class="output-box" id="output_box">
       <h3>✔ File berhasil dibuat dan diunduh!</h3>
-      <p style="font-size:0.82rem;color:#444;margin-bottom:10px;">Isi ZIP yang diunduh:</p>
+      <p style="font-size:0.82rem;color:#444;margin-bottom:10px;">File yang diunduh:</p>
       <ul class="file-list" id="file_list"></ul>
       <p style="font-size:0.82rem;color:#2e7d32;font-weight:600;margin:12px 0 6px;">Langkah upload ke KoboToolbox:</p>
       <ol class="steps-list">
         <li>Login ke <strong>kobotoolbox.org</strong> → klik <strong>+ New</strong> → <strong>Upload an XLSForm</strong> → pilih file <strong>Sudeska_RT_*.xlsx</strong></li>
-        <li>Buka project yang baru dibuat → <strong>Settings</strong> → <strong>Media</strong> → upload <strong>master_insker.csv</strong></li>
+        <li>Buka project yang baru dibuat → <strong>Settings</strong> → <strong>Media</strong> → upload file <strong>master_insker.csv</strong> yang sudah tersedia di folder kerja</li>
         <li>Klik <strong>Deploy</strong> (atau Redeploy jika sudah pernah dideploy)</li>
         <li>Salin link form → bagikan ke petugas lapangan</li>
       </ol>
@@ -380,14 +379,6 @@ function csvEsc(v) {
   return (s.includes(',') || s.includes('"') || s.includes('\n'))
     ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
-function buildCSV(palData) {
-  const lines = ['no_urut,pal,x_insker,y_insker,keterangan_insker'];
-  palData.forEach(d => lines.push(
-    [d.no_urut, csvEsc(d.pal), d.x_insker, d.y_insker, csvEsc(d.keterangan_insker)].join(',')
-  ));
-  return lines.join('\r\n');
-}
-
 // ─────────────────────────────────────────────
 // XLSForm (survey rows tetap sama, hanya default field hidden yg berubah)
 // ─────────────────────────────────────────────
@@ -496,46 +487,7 @@ function buildXLSForm(skala, namaKTH, utmZone, namaProject) {
 }
 
 // ─────────────────────────────────────────────
-// PANDUAN TEXT
-// ─────────────────────────────────────────────
-function buildPanduan(namaProject, namaKTH, skala, utmZone) {
-  const tol = (0.3 * Number(skala) / 1000).toFixed(2);
-  const now = new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
-  return `PANDUAN UPLOAD PROJECT SUDESKA KE KOBOTOOLBOX
-================================================
-Dibuat   : ${now}
-Project  : ${namaProject}
-KTH      : ${namaKTH}
-Skala    : 1 : ${Number(skala).toLocaleString('id')}
-Toleransi: ${tol} meter
-Zona UTM : ${utmZone}
-================================================
-
-ISI FOLDER ZIP INI:
-  - Sudeska_RT_${namaProject}.xlsx  → XLSForm form petugas
-  - master_insker.csv               → Data titik PAL insker
-  - panduan_upload.txt              → File ini
-
-LANGKAH UPLOAD KE KOBOTOOLBOX:
-  1. Login ke https://www.kobotoolbox.org
-  2. Klik "+ New" → "Upload an XLSForm"
-     Pilih: Sudeska_RT_${namaProject}.xlsx
-  3. Buka project baru → Settings → Media
-     Upload: master_insker.csv
-  4. Klik Deploy / Redeploy
-  5. Salin link form → bagikan ke petugas lapangan
-
-CATATAN ALUR PETUGAS:
-  - Isi No Urut PAL (angka sesuai master_insker.csv)
-  - Pilih metode koordinat: Manual UTM atau GPS Otomatis
-  - Jika Cek Validasi → WAJIB isi Catatan Lapangan
-  - Status tersimpan: Valid / Menyesuaikan existing / Cek Validasi
-
-================================================`;
-}
-
-// ─────────────────────────────────────────────
-// GENERATE & DOWNLOAD ZIP
+// GENERATE & DOWNLOAD XLSX
 // ─────────────────────────────────────────────
 function showError(msg) {
   const el = document.getElementById('error_msg');
@@ -560,29 +512,18 @@ async function generate() {
     if (kosong) { showError('⚠ Pastikan semua titik PAL sudah terisi Nama PAL, X, dan Y Insker!'); return; }
 
     const xlsxName = `Sudeska_RT_${namaProject}.xlsx`;
-    const csvName  = 'master_insker.csv';
-    const txtName  = 'panduan_upload.txt';
-    const zipName  = `${namaProject}_Sudeska.zip`;
-
     const xlsxBuf = buildXLSForm(skala, namaKTH, utmZone, namaProject);
-    const csvStr  = buildCSV(palData);
-    const txtStr  = buildPanduan(namaProject, namaKTH, skala, utmZone);
-
-    const zip = new JSZip();
-    const folder = zip.folder(`${namaProject}_Sudeska`);
-    folder.file(xlsxName, xlsxBuf);
-    folder.file(csvName,  csvStr);
-    folder.file(txtName,  txtStr);
-
-    const blob = await zip.generateAsync({ type:'blob', compression:'DEFLATE' });
-    saveAs(blob, zipName);
+    const blob = new Blob(
+      [xlsxBuf],
+      { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+    );
+    saveAs(blob, xlsxName);
 
     // Tampilkan info output
     const fileList = document.getElementById('file_list');
     fileList.innerHTML = `
       <li><span class="icon">📊</span> <strong>${xlsxName}</strong> – Upload ke KoboToolbox sebagai form</li>
-      <li><span class="icon">📄</span> <strong>${csvName}</strong> – Upload ke Settings → Media (${palData.length} titik PAL)</li>
-      <li><span class="icon">📝</span> <strong>${txtName}</strong> – Panduan langkah upload</li>
+      <li><span class="icon">📄</span> <strong>master_insker.csv</strong> – Gunakan file master yang sudah ada saat upload di Settings → Media</li>
     `;
     document.getElementById('output_box').style.display = 'block';
     document.getElementById('output_box').scrollIntoView({ behavior:'smooth', block:'start' });
