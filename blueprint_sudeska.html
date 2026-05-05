@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blueprint Sistem SUDESKA – BPKH Wilayah XI</title>
+<style>
+  :root {
+    --green-dark: #1b5e20;
+    --green-mid: #2e7d32;
+    --green-light: #43a047;
+    --green-pale: #e8f5e9;
+    --blue-dark: #0d47a1;
+    --blue-mid: #1565c0;
+    --blue-light: #1976d2;
+    --blue-pale: #e3f2fd;
+    --orange: #e65100;
+    --orange-pale: #fff3e0;
+    --purple: #4a148c;
+    --purple-pale: #f3e5f5;
+    --grey: #37474f;
+    --grey-light: #eceff1;
+    --yellow: #f57f17;
+    --yellow-pale: #fffde7;
+    --red: #b71c1c;
+    --red-pale: #ffebee;
+    --text: #212121;
+    --border: #cfd8dc;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    background: #f5f5f5;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────────────── */
+  .header {
+    background: linear-gradient(135deg, var(--green-dark) 0%, var(--blue-dark) 100%);
+    color: #fff;
+    padding: 28px 36px 22px;
+    border-bottom: 4px solid var(--green-light);
+  }
+  .header h1 { font-size: 22px; letter-spacing: 1px; font-weight: 700; }
+  .header h2 { font-size: 14px; font-weight: 400; margin-top: 4px; opacity: .85; }
+  .header .meta { margin-top: 10px; font-size: 12px; opacity: .7; display: flex; gap: 24px; flex-wrap: wrap; }
+  .badge {
+    display: inline-block; padding: 2px 10px; border-radius: 12px;
+    font-size: 11px; font-weight: 600; letter-spacing: .5px;
+    background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35);
+  }
+
+  /* ── NAV TABS ────────────────────────────────────────────────── */
+  .tabs {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    background: #263238; padding: 8px 20px 0;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .tab-btn {
+    padding: 8px 16px; border: none; border-radius: 6px 6px 0 0;
+    cursor: pointer; font-size: 12px; font-weight: 600;
+    background: rgba(255,255,255,.12); color: #cfd8dc;
+    transition: all .2s;
+  }
+  .tab-btn:hover { background: rgba(255,255,255,.22); color: #fff; }
+  .tab-btn.active { background: #f5f5f5; color: var(--green-dark); }
+
+  /* ── CONTENT ─────────────────────────────────────────────────── */
+  .content { padding: 28px 24px; max-width: 1280px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── CARD ────────────────────────────────────────────────────── */
+  .card {
+    background: #fff; border-radius: 10px; padding: 22px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08); margin-bottom: 20px;
+    border-left: 5px solid var(--green-mid);
+  }
+  .card.blue  { border-left-color: var(--blue-mid); }
+  .card.orange{ border-left-color: var(--orange); }
+  .card.purple{ border-left-color: var(--purple); }
+  .card.yellow{ border-left-color: var(--yellow); }
+  .card.red   { border-left-color: var(--red); }
+  .card.grey  { border-left-color: var(--grey); }
+
+  .card-title {
+    font-size: 15px; font-weight: 700; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .phase-badge {
+    font-size: 11px; font-weight: 700; padding: 3px 10px;
+    border-radius: 20px; white-space: nowrap;
+  }
+  .ph-grey   { background: var(--grey-light); color: var(--grey); }
+  .ph-green  { background: var(--green-pale); color: var(--green-dark); }
+  .ph-blue   { background: var(--blue-pale); color: var(--blue-dark); }
+  .ph-orange { background: var(--orange-pale); color: var(--orange); }
+  .ph-purple { background: var(--purple-pale); color: var(--purple); }
+  .ph-yellow { background: var(--yellow-pale); color: var(--yellow); }
+  .ph-red    { background: var(--red-pale); color: var(--red); }
+
+  /* ── IPO TABLE ───────────────────────────────────────────────── */
+  .ipo { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .ipo-col { border-radius: 8px; padding: 12px 14px; }
+  .ipo-col h4 { font-size: 11px; font-weight: 700; letter-spacing: .8px; margin-bottom: 8px; text-transform: uppercase; }
+  .ipo-col ul { padding-left: 14px; }
+  .ipo-col li { margin-bottom: 5px; line-height: 1.45; }
+  .ipo-in   { background: var(--blue-pale); }  .ipo-in h4   { color: var(--blue-dark); }
+  .ipo-proc { background: var(--yellow-pale); } .ipo-proc h4 { color: var(--yellow); }
+  .ipo-out  { background: var(--green-pale); }  .ipo-out h4  { color: var(--green-dark); }
+
+  /* ── DETAIL TABLE ────────────────────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+  th { background: var(--grey); color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--grey-light); }
+  tr:hover td { background: var(--blue-pale); }
+
+  /* ── FLOW CHART ──────────────────────────────────────────────── */
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .flow-row { display: flex; align-items: flex-start; gap: 0; }
+  .flow-node {
+    border-radius: 8px; padding: 10px 16px; font-size: 12px; font-weight: 600;
+    min-width: 200px; text-align: center; position: relative; flex-shrink: 0;
+  }
+  .flow-arrow {
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 6px; font-size: 18px; color: var(--grey); flex-shrink: 0;
+  }
+  .flow-arrow.down {
+    flex-direction: column; align-items: flex-start;
+    padding: 2px 0 2px 98px; font-size: 18px;
+  }
+  .fn-grey   { background: var(--grey-light); color: var(--grey); border: 2px solid #b0bec5; }
+  .fn-green  { background: var(--green-pale); color: var(--green-dark); border: 2px solid var(--green-light); }
+  .fn-blue   { background: var(--blue-pale); color: var(--blue-dark); border: 2px solid var(--blue-light); }
+  .fn-orange { background: var(--orange-pale); color: var(--orange); border: 2px solid #ff6d00; }
+  .fn-purple { background: var(--purple-pale); color: var(--purple); border: 2px solid #8e24aa; }
+  .fn-yellow { background: var(--yellow-pale); color: var(--yellow); border: 2px solid #f9a825; }
+  .fn-red    { background: var(--red-pale); color: var(--red); border: 2px solid #e53935; }
+  .fn-teal   { background: #e0f2f1; color: #004d40; border: 2px solid #00897b; }
+  .fn-diamond { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); border-radius: 0; padding: 18px 20px; }
+
+  /* ── FLOW MAIN ───────────────────────────────────────────────── */
+  .flow-main { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .fm-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .fm-arrow-down { padding-left: 110px; color: var(--grey); font-size: 16px; }
+  .fm-branch { display: flex; gap: 12px; margin-left: 0; flex-wrap: wrap; }
+  .fm-branch-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .fm-label { font-size: 10px; color: var(--grey); font-style: italic; }
+  .fm-sep { border-top: 2px dashed var(--border); margin: 10px 0; width: 100%; }
+
+  /* ── MATRIX TABLE ────────────────────────────────────────────── */
+  .matrix th:first-child { width: 120px; }
+  .matrix .ok  { text-align: center; color: var(--green-dark); font-size: 16px; }
+  .matrix .no  { text-align: center; color: #bdbdbd; font-size: 14px; }
+  .matrix .partial { text-align: center; color: var(--yellow); font-size: 14px; }
+
+  /* ── TECH STACK ──────────────────────────────────────────────── */
+  .stack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .stack-item {
+    background: #fff; border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .stack-item h4 { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--blue-dark); }
+  .stack-item ul { padding-left: 14px; }
+  .stack-item li { margin-bottom: 4px; color: var(--grey); }
+
+  /* ── DATA DICT ───────────────────────────────────────────────── */
+  .dict-tag {
+    display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 10px;
+    font-weight: 600; margin-left: 4px;
+  }
+  .dt-auto   { background: var(--green-pale); color: var(--green-dark); }
+  .dt-manual { background: var(--orange-pale); color: var(--orange); }
+  .dt-calc   { background: var(--blue-pale); color: var(--blue-dark); }
+
+  /* ── RISK TABLE ──────────────────────────────────────────────── */
+  .risk-high   { background: var(--red-pale) !important; }
+  .risk-med    { background: var(--yellow-pale) !important; }
+  .risk-low    { background: var(--green-pale) !important; }
+
+  /* ── RESPONSIVE ──────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .ipo { grid-template-columns: 1fr; }
+    .tabs { gap: 2px; padding: 6px 8px 0; }
+    .tab-btn { font-size: 11px; padding: 6px 10px; }
+    .content { padding: 16px 10px; }
+    .header { padding: 16px; }
+    .header h1 { font-size: 17px; }
+  }
+
+  @media print {
+    .tabs { display: none; }
+    .section { display: block !important; page-break-before: always; }
+    .section:first-of-type { page-break-before: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>BLUEPRINT SISTEM SUDESKA</h1>
+  <h2>Supervisi Desk Analisis Tata Batas Perhutanan Sosial &nbsp;|&nbsp; BPKH Wilayah XI Yogyakarta</h2>
+  <div class="meta">
+    <span><span class="badge">v1.0</span></span>
+    <span>Tanggal: 5 Mei 2026</span>
+    <span>Penyusun: BPKH Wilayah XI – Seksi PPKH</span>
+    <span>Status: <span class="badge">DRAFT BLUEPRINT</span></span>
+  </div>
+</div>
+
+<!-- NAV TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('overview')">📋 Overview</button>
+  <button class="tab-btn" onclick="showTab('flowchart')">🔄 Flow Chart</button>
+  <button class="tab-btn" onclick="showTab('ipo')">📊 Matriks IPO</button>
+  <button class="tab-btn" onclick="showTab('datadict')">🗂️ Kamus Data</button>
+  <button class="tab-btn" onclick="showTab('portal')">🖥️ Portal UI</button>
+  <button class="tab-btn" onclick="showTab('techstack')">⚙️ Tech Stack</button>
+  <button class="tab-btn" onclick="showTab('risk')">⚠️ Risiko</button>
+  <button class="tab-btn" onclick="showTab('roadmap')">🗓️ Roadmap</button>
+</div>
+
+<!-- ═══════════════════════ OVERVIEW ═══════════════════════════ -->
+<div class="content">
+<div id="overview" class="section active">
+
+  <div class="card">
+    <div class="card-title">🎯 Tujuan Sistem</div>
+    <p style="line-height:1.7">
+      Sistem SUDESKA adalah platform automasi end-to-end yang mengelola seluruh siklus kerja supervisi penandaan batas areal Perhutanan Sosial, mulai dari <strong>penerimaan permohonan</strong>, <strong>perencanaan instruksi kerja berbasis GIS</strong>, <strong>pengumpulan data lapangan via KoboToolbox</strong>, hingga <strong>penerbitan Berita Acara, peta, dan data spasial final</strong> — seluruhnya dikendalikan melalui satu portal berbasis form & generator.
+    </p>
+  </div>
+
+  <div class="card blue">
+    <div class="card-title">🧠 Pola Pikir Utama</div>
+    <table>
+      <tr><th>Prinsip</th><th>Penjelasan</th></tr>
+      <tr><td><strong>Regulator-Centric</strong></td><td>BPKH sebagai pengendali penuh alur, bukan pasif menerima laporan</td></tr>
+      <tr><td><strong>Form-Driven Automation</strong></td><td>Setiap tahap diawali form sederhana → memicu generator output konkret</td></tr>
+      <tr><td><strong>Single Source of Truth</strong></td><td>Data spasial awal dipakai konsisten dari instruksi sampai BA final</td></tr>
+      <tr><td><strong>Traceable Chain</strong></td><td>ID_PERMOHONAN → ID_SEGMEN → ID_TRAYEK → ID_TITIK → ID_SUPERVISI konsisten lintas tahap</td></tr>
+      <tr><td><strong>Parallel-Ready</strong></td><td>Generator Kobo bisa dibentuk otomatis bersamaan setelah instruksi kerja jadi</td></tr>
+      <tr><td><strong>Multi-Output per Tahap</strong></td><td>Setiap tahap menghasilkan: data spasial + dokumen DOCX + peta PDF</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔢 Rantai Proses (Tahap -2 sampai +4)</div>
+    <table>
+      <tr><th>No</th><th>Tahap</th><th>Pelaku</th><th>Input Utama</th><th>Output Utama</th><th>Status</th></tr>
+      <tr>
+        <td><strong>-2</strong></td>
+        <td>Permohonan Masuk</td>
+        <td>Pemohon → BPKH</td>
+        <td>Line + polygon areal kerja, metadata pemohon</td>
+        <td>Berkas permohonan tervalidasi</td>
+        <td><span class="phase-badge ph-grey">PLANNED</span></td>
+      </tr>
+      <tr>
+        <td><strong>-1</strong></td>
+        <td>Analisis Segmentasi Batas</td>
+        <td>BPKH (GIS)</td>
+        <td>Base data regulator + geometri permohonan</td>
+        <td>Layer segmen batas terklasifikasi</td>
+        <td><span class="phase-badge ph-grey">PLANNED</span></td>
+      </tr>
+      <tr>
+        <td><strong>0</strong></td>
+        <td>Generasi Trayek & Titik</td>
+        <td>BPKH (GIS)</td>
+        <td>Layer segmen</td>
+        <td>Point/line/polygon instruksi kerja</td>
+        <td><span class="phase-badge ph-grey">PLANNED</span></td>
+      </tr>
+      <tr>
+        <td><strong>1</strong></td>
+        <td>Draft Instruksi Kerja</td>
+        <td>BPKH</td>
+        <td>Hasil tahap 0</td>
+        <td>DOCX Instruksi Kerja + PDF Peta + geodata</td>
+        <td><span class="phase-badge ph-grey">PLANNED</span></td>
+      </tr>
+      <tr>
+        <td><strong>2</strong></td>
+        <td>Pelaksanaan oleh Pemohon</td>
+        <td>Pemohon</td>
+        <td>Instruksi Kerja</td>
+        <td>Laporan pelaksanaan + data lapangan</td>
+        <td><span class="phase-badge ph-grey">PLANNED</span></td>
+      </tr>
+      <tr>
+        <td><strong>3</strong></td>
+        <td>Supervisi via KoboToolbox</td>
+        <td>BPKH + Pemohon</td>
+        <td>XLSForm Kobo (dari Tahap 1) + data lapangan</td>
+        <td>Tabel gabungan Instruksi + Pelaksanaan + Supervisi</td>
+        <td><span class="phase-badge ph-green">ACTIVE</span></td>
+      </tr>
+      <tr>
+        <td><strong>4</strong></td>
+        <td>Berita Acara + Output Final</td>
+        <td>BPKH</td>
+        <td>Hasil Kobo + metadata tambahan</td>
+        <td>DOCX BA + PDF Peta Supervisi + geodata final</td>
+        <td><span class="phase-badge ph-blue">NEXT</span></td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════ FLOWCHART ══════════════════════════ -->
+<div id="flowchart" class="section">
+
+  <div class="card">
+    <div class="card-title">🔄 Flow Chart End-to-End Sistem SUDESKA</div>
+    <div class="flow-main">
+
+      <!-- START -->
+      <div class="fm-row">
+        <div class="flow-node fn-grey" style="border-radius:50px;min-width:220px">🟢 MULAI</div>
+      </div>
+      <div class="fm-arrow-down">▼</div>
+
+      <!-- PERMOHONAN -->
+      <div class="fm-row">
+        <div class="flow-node fn-grey" style="min-width:320px">
+          <span class="phase-badge ph-grey">TAHAP -2</span><br>
+          📥 Permohonan Masuk<br>
+          <small style="font-weight:400">Line + Polygon + Metadata Pemohon</small>
+        </div>
+      </div>
+      <div class="fm-arrow-down">▼</div>
+
+      <!-- VALIDASI BERKAS -->
+      <div class="fm-row">
+        <div class="flow-node fn-yellow" style="min-width:320px">
+          🔍 Validasi Kelengkapan Berkas & Geometri
+        </div>
+      </div>
+      <div class="fm-arrow-down">▼</div>
+
+      <!-- DECISION LENGKAP -->
+      <div class="fm-row">
+        <div class="flow-node fn-yellow fn-diamond" style="min-width:160px;max-width:160px;">Lengkap?</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node fn-red" style="min-width:200px">❌ Tidak Lengkap<br><small>Kembalikan ke Pemohon</small></div>
+        <div class="flow-arrow">→ ulang</div>
+      </div>
+      <div class="fm-arrow-down">▼ Ya</div>
+
+      <!-- SEGMENTASI GIS -->
+      <div class="fm-row">
+        <div class="flow-node fn-blue" style="min-width:320px">
+          <span class="phase-badge ph-blue">TAHAP -1</span><br>
+          🗺️ Overlay Base Data Regulator<br>
+          <small style="font-weight:400">Admin · Jalan · Sungai · Batas Kawasan · Areal Lain</small>
+        </div>
+      </div>
+      <div class="fm-arrow-down">▼</div>
+
+      <div class="fm-row">
+        <div class="flow-node fn-blue" style="min-width:320px">
+          🔀 Klasifikasi Segmen Batas
+        </div>
+      </div>
+      <div class="fm-arrow-down">▼</div>
+
+      <!-- SEGMEN CABANG -->
+      <div class="fm-branch" style="margin-left:0">
+        <div class="fm-branch-item">
+          <div class="flow-node fn-teal" style="min-width:150px">🌿 Batas Alam<br><small>dekat jalan/sungai</small></div>
+        </div>
+        <div class="fm-branch-item">
+          <div class="flow-node fn-orange" style="min-width:150px">🏔️ Batas Luar<br><small>kws hutan / APL</small></div>
+        </div>
+        <div class="fm-branch-item">
+          <div class="flow-node fn-purple" style="min-width:150px">🔹 Batas Sendiri<br><small>berdiri sendiri</small></div>
+        </div>
+        <div class="fm-branch-item">
+          <div class="flow-node fn-green" style="min-width:150px">🤝 Batas Sekutu<br><small>bersekutu areal lain</small></div>
+        </div>
+      </div>
+      <div class="fm-arrow-down">▼ Semua segmen tergabung</div>
+
+      <!-- TRAYEK -->
+      <div class="fm-row">
+        <div class="flow-node fn-blue" style="min-width:320px">
+          <span class="phase-badge ph-blue">TAHAP 0</span><br>
+          📐 Generate Titik Batas + Urutan Trayek<br>
+          <small style="font-weight:400">Azimuth · Jarak · From-To tiap segmen</small>
+        </div>
+      </div>
+      <div class="fm-arrow-down">▼</div>
+
+      <!-- QA/QC -->
+      <div class="fm-row">
+        <div class="flow-node fn-yellow" style="min-width:320px">✅ QA/QC Topologi + Atribut + Urutan Trayek</div>
+      </div>
+      <div class="fm-arrow-down">▼ Lolos</div>
+
+      <!-- INSTRUKSI KERJA -->
+      <div class="fm-row">
+        <div class="flow-node fn-green" style="min-width:320px">
+          <span class="phase-badge ph-green">TAHAP 1</span><br>
+          📄 Generator Instruksi Kerja
+        </div>
+      </div>
+      <div class="fm-arrow-down">▼</div>
+
+      <!-- OUTPUT INSTRUKSI -->
+      <div class="fm-branch">
+        <div class="fm-branch-item">
+          <div class="flow-node fn-green" style="min-width:155px">📄 DOCX<br>Instruksi Kerja</div>
+        </div>
+        <div class="fm-branch-item">
+          <div class="flow-node fn-green" style="min-width:155px">🗺️ PDF<br>Peta Instruksi</div>
+        </div>
+        <div class="fm-branch-item">
+          <div class="flow-node fn-green" style="min-width:155px">📍 Geodata<br>Point/Line/Poly</div>
+        </div>
+        <div class="fm-branch-item">
+          <div class="flow-node fn-green" style="min-width:155px">📊 XLSForm<br>Kobo (auto)</div>
+        </div>
+      </div>
+      <div class="fm-arrow-down">▼ Diserahkan ke Pemohon</div>
+
+      <!-- PELAKSANAAN -->
+      <div class="fm-row">
+        <div class="flow-node fn-grey" style="min-width:320px">
+          <span class="phase-badge ph-grey">TAHAP 2</span><br>
+          🚶 Pemohon Melaksanakan Penataan Batas
+        </div>
+      </div>
+      <div class="fm-arrow-down">▼ Permohonan Supervisi diajukan</div>
+
+      <!-- SUPERVISI KOBO -->
+      <div class="fm-row">
+        <div class="flow-node fn-orange" style="min-width:320px">
+          <span class="phase-badge ph-orange">TAHAP 3</span><br>
+          📱 Supervisi via KoboToolbox<br>
+          <small style="font-weight:400">Input GPS / Manual · Foto · Catatan · Status Validasi</small>
+        </div>
+      </div>
+      <div class="fm-arrow-down">▼</div>
+
+      <div class="fm-row">
+        <div class="flow-node fn-orange" style="min-width:320px">
+          📊 Tabel Gabungan Instruksi + Pelaksanaan + Supervisi
+        </div>
+      </div>
+      <div class="fm-arrow-down">▼</div>
+
+      <!-- BA FINAL -->
+      <div class="fm-row">
+        <div class="flow-node fn-purple" style="min-width:320px">
+          <span class="phase-badge ph-purple">TAHAP 4</span><br>
+          📝 Generator Berita Acara + Peta Final
+        </div>
+      </div>
+      <div class="fm-arrow-down">▼</div>
+
+      <!-- OUTPUT FINAL -->
+      <div class="fm-branch">
+        <div class="fm-branch-item">
+          <div class="flow-node fn-purple" style="min-width:155px">📄 DOCX<br>Berita Acara</div>
+        </div>
+        <div class="fm-branch-item">
+          <div class="flow-node fn-purple" style="min-width:155px">🗺️ PDF<br>Peta Supervisi</div>
+        </div>
+        <div class="fm-branch-item">
+          <div class="flow-node fn-purple" style="min-width:155px">📍 Geodata<br>Final</div>
+        </div>
+        <div class="fm-branch-item">
+          <div class="flow-node fn-purple" style="min-width:155px">📦 ZIP<br>Paket Arsip</div>
+        </div>
+      </div>
+      <div class="fm-arrow-down">▼</div>
+
+      <div class="fm-row">
+        <div class="flow-node fn-grey" style="border-radius:50px;min-width:220px">🏁 SELESAI – Arsip + Monitoring</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card blue">
+    <div class="card-title">🔀 Detail Mesin GIS (Tahap -1 dan 0)</div>
+    <table>
+      <tr><th>Langkah</th><th>Proses</th><th>Aturan/Parameter</th></tr>
+      <tr><td>1</td><td>Normalisasi geometri</td><td>Proyeksi ke UTM zona project; validasi topologi tidak self-intersect</td></tr>
+      <tr><td>2</td><td>Overlay base data</td><td>Buffer jalan/sungai, proximity kawasan hutan, overlay areal izin lain</td></tr>
+      <tr><td>3</td><td>Split kandidat segmen</td><td>Potong line di setiap perubahan atribut overlay</td></tr>
+      <tr><td>4</td><td>Klasifikasi otomatis</td><td>Prioritas: Batas Alam > Batas Luar > Batas Sekutu > Batas Sendiri</td></tr>
+      <tr><td>5</td><td>Generate titik batas</td><td>Per aturan interval masing-masing tipe segmen</td></tr>
+      <tr><td>6</td><td>Susun trayek</td><td>From → To urutan searah jarum jam; hitung azimuth, jarak datar</td></tr>
+      <tr><td>7</td><td>Assign atribut</td><td>ID_TITIK, tipe_segmen, azimuth, jarak, UTM_X, UTM_Y, keterangan</td></tr>
+      <tr><td>8</td><td>QA/QC</td><td>Cek urutan trayek, gap geometri, kelengkapan atribut</td></tr>
+      <tr><td>9</td><td>Export output</td><td>Shapefile + CSV master instruksi + bahan prefill Kobo</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════ MATRIKS IPO ════════════════════════ -->
+<div id="ipo" class="section">
+
+  <!-- TAHAP -2 -->
+  <div class="card grey">
+    <div class="card-title">
+      <span class="phase-badge ph-grey">TAHAP -2</span> Penerimaan Permohonan
+    </div>
+    <div class="ipo">
+      <div class="ipo-col ipo-in">
+        <h4>Input</h4>
+        <ul>
+          <li>File line areal kerja (.shp / .kml / .geojson)</li>
+          <li>File polygon permohonan (.shp / .kml)</li>
+          <li>Nama KTH / pemohon</li>
+          <li>Luas areal (Ha)</li>
+          <li>Kabupaten / Provinsi</li>
+          <li>Nomor SK persetujuan</li>
+          <li>Tanggal permohonan</li>
+        </ul>
+      </div>
+      <div class="ipo-col ipo-proc">
+        <h4>Proses</h4>
+        <ul>
+          <li>Validasi kelengkapan berkas</li>
+          <li>Validasi geometri (not null, valid polygon)</li>
+          <li>Assign ID_PERMOHONAN unik</li>
+          <li>Registrasi ke sistem</li>
+        </ul>
+      </div>
+      <div class="ipo-col ipo-out">
+        <h4>Output</h4>
+        <ul>
+          <li>Nomor registrasi permohonan</li>
+          <li>Paket berkas digital tervalidasi</li>
+          <li>Notifikasi status ke pemohon</li>
+        </ul>
+      </div>
+    </div>
+    <table>
+      <tr><th>Variabel Kunci</th><th>Format</th><th>Wajib?</th><th>Catatan</th></tr>
+      <tr><td>ID_PERMOHONAN</td><td>Text (auto)</td><td>Ya</td><td>Format: BPKH-XI-{TAHUN}-{SEQ}</td></tr>
+      <tr><td>nama_kth</td><td>Text</td><td>Ya</td><td>Sesuai SK persetujuan</td></tr>
+      <tr><td>nomor_sk</td><td>Text</td><td>Ya</td><td>SK MENLHK persetujuan</td></tr>
+      <tr><td>luas_ha</td><td>Decimal</td><td>Ya</td><td>Dari SK; dicek vs hitung ulang GIS</td></tr>
+      <tr><td>geom_line</td><td>LineString (UTM)</td><td>Ya</td><td>Batas areal kerja</td></tr>
+      <tr><td>geom_polygon</td><td>Polygon (UTM)</td><td>Ya</td><td>Areal permohonan</td></tr>
+    </table>
+  </div>
+
+  <!-- TAHAP -1 -->
+  <div class="card blue">
+    <div class="card-title">
+      <span class="phase-badge ph-blue">TAHAP -1</span> Analisis Segmentasi Batas
+    </div>
+    <div class="ipo">
+      <div class="ipo-col ipo-in">
+        <h4>Input</h4>
+        <ul>
+          <li>Geometri permohonan (line + polygon)</li>
+          <li>Base data jalan</li>
+          <li>Base data sungai</li>
+          <li>Layer batas kawasan hutan</li>
+          <li>Layer APL</li>
+          <li>Layer areal izin lain (PPHKm, PPHD, PPKH, dll)</li>
+          <li>Parameter buffer (misal jalan: 10m, sungai: 20m)</li>
+        </ul>
+      </div>
+      <div class="ipo-col ipo-proc">
+        <h4>Proses</h4>
+        <ul>
+          <li>Normalisasi projeksi UTM</li>
+          <li>Overlay spatial (buffer + intersect)</li>
+          <li>Split line di tiap perubahan overlay</li>
+          <li>Klasifikasi segmen per prioritas</li>
+          <li>Assign atribut tipe segmen</li>
+        </ul>
+      </div>
+      <div class="ipo-col ipo-out">
+        <h4>Output</h4>
+        <ul>
+          <li>Layer segmen terklasifikasi (shapefile)</li>
+          <li>Rekap panjang per tipe segmen</li>
+          <li>Peta preview segmentasi (PNG/PDF)</li>
+        </ul>
+      </div>
+    </div>
+    <table>
+      <tr><th>Tipe Segmen</th><th>Aturan Klasifikasi</th><th>Prioritas</th></tr>
+      <tr><td>Batas Alam</td><td>Dalam buffer jalan/sungai</td><td>1 (tertinggi)</td></tr>
+      <tr><td>Batas Luar</td><td>Berbatasan kawasan hutan vs APL</td><td>2</td></tr>
+      <tr><td>Batas Sekutu</td><td>Berbatasan areal izin lain</td><td>3</td></tr>
+      <tr><td>Batas Sendiri</td><td>Tidak memenuhi kriteria lain</td><td>4 (default)</td></tr>
+    </table>
+  </div>
+
+  <!-- TAHAP 0 -->
+  <div class="card blue">
+    <div class="card-title">
+      <span class="phase-badge ph-blue">TAHAP 0</span> Generasi Trayek & Titik Batas
+    </div>
+    <div class="ipo">
+      <div class="ipo-col ipo-in">
+        <h4>Input</h4>
+        <ul>
+          <li>Layer segmen terklasifikasi</li>
+          <li>Aturan interval titik per tipe segmen</li>
+          <li>Titik ikat / titik kontrol</li>
+          <li>Zona UTM</li>
+        </ul>
+      </div>
+      <div class="ipo-col ipo-proc">
+        <h4>Proses</h4>
+        <ul>
+          <li>Generate titik batas per aturan interval</li>
+          <li>Urutan trayek (from→to searah jarum jam)</li>
+          <li>Hitung azimuth & jarak datar tiap trayek</li>
+          <li>QA/QC topologi & urutan</li>
+          <li>Export CSV master instruksi</li>
+        </ul>
+      </div>
+      <div class="ipo-col ipo-out">
+        <h4>Output</h4>
+        <ul>
+          <li>Layer titik_batas_instruksi (shapefile)</li>
+          <li>Layer trayek_batas (polyline)</li>
+          <li>CSV master instruksi (No, Nama, X, Y, Keterangan)</li>
+          <li>Tabel trayek (from, to, azimuth, jarak)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAHAP 1 -->
+  <div class="card">
+    <div class="card-title">
+      <span class="phase-badge ph-green">TAHAP 1</span> Generator Instruksi Kerja
+    </div>
+    <div class="ipo">
+      <div class="ipo-col ipo-in">
+        <h4>Input</h4>
+        <ul>
+          <li>Hasil tahap 0 (CSV master + geodata)</li>
+          <li>Nomor instruksi kerja</li>
+          <li>Tanggal instruksi</li>
+          <li>Nama pejabat penandatangan</li>
+          <li>Panjang batas (m), Luas (Ha)</li>
+          <li>Detail titik kontrol / titik ikat</li>
+          <li>Template DOCX instruksi kerja</li>
+        </ul>
+      </div>
+      <div class="ipo-col ipo-proc">
+        <h4>Proses</h4>
+        <ul>
+          <li>Isi placeholder template DOCX</li>
+          <li>Generate tabel trayek + tabel titik instruksi</li>
+          <li>Render layout peta instruksi</li>
+          <li>Generate XLSForm Kobo dari CSV master</li>
+        </ul>
+      </div>
+      <div class="ipo-col ipo-out">
+        <h4>Output</h4>
+        <ul>
+          <li>📄 DOCX Instruksi Kerja final</li>
+          <li>🗺️ PDF Peta Instruksi (layout baku)</li>
+          <li>📍 Geodata instruksi (point/line/polygon)</li>
+          <li>📊 XLSForm Kobo siap upload</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAHAP 3 -->
+  <div class="card orange">
+    <div class="card-title">
+      <span class="phase-badge ph-orange">TAHAP 3</span> Supervisi via KoboToolbox
+    </div>
+    <div class="ipo">
+      <div class="ipo-col ipo-in">
+        <h4>Input</h4>
+        <ul>
+          <li>XLSForm Kobo (dari Tahap 1 atau generator HTML)</li>
+          <li>Data lapangan petugas supervisi (GPS / manual)</li>
+          <li>Foto dokumentasi</li>
+          <li>Catatan lapangan</li>
+          <li>Status validasi per titik</li>
+        </ul>
+      </div>
+      <div class="ipo-col ipo-proc">
+        <h4>Proses</h4>
+        <ul>
+          <li>Kobo collect data per titik PAL</li>
+          <li>Inline lookup X/Y instruksi (tanpa media CSV)</li>
+          <li>Hitung jarak deviasi instruksi vs pelaksanaan</li>
+          <li>Tentukan status: Valid / Cek Validasi / Tidak Ditemukan</li>
+          <li>Ekspor rekap tabel gabungan</li>
+        </ul>
+      </div>
+      <div class="ipo-col ipo-out">
+        <h4>Output</h4>
+        <ul>
+          <li>📊 Tabel gabungan per titik (Instruksi + Pelaksanaan + Supervisi)</li>
+          <li>📊 XLSX rekap validasi</li>
+          <li>📋 Ringkasan status validasi seluruh titik</li>
+        </ul>
+      </div>
+    </div>
+    <table>
+      <tr><th>Kolom Tabel Gabungan</th><th>Sumber</th></tr>
+      <tr><td>No · Nomor Titik/Patok · Keterangan Titik</td><td>Instruksi kerja (auto lookup)</td></tr>
+      <tr><td>X Instruksi (mT) · Y Instruksi (mS)</td><td>Instruksi kerja (auto lookup)</td></tr>
+      <tr><td>X Pelaksanaan (mT) · Y Pelaksanaan (mS)</td><td>Input lapangan (GPS/manual)</td></tr>
+      <tr><td>X Supervisi (mT) · Y Supervisi (mS)</td><td>Input supervisi (GPS/manual)</td></tr>
+      <tr><td>Jarak Deviasi (m)</td><td>Kalkulasi otomatis</td></tr>
+      <tr><td>Status Validasi</td><td>Logika otomatis + override manual</td></tr>
+      <tr><td>Keterangan</td><td>Input bebas petugas supervisi</td></tr>
+    </table>
+  </div>
+
+  <!-- TAHAP 4 -->
+  <div class="card purple">
+    <div class="card-title">
+      <span class="phase-badge ph-purple">TAHAP 4</span> Generator Berita Acara + Output Final
+    </div>
+    <div class="ipo">
+      <div class="ipo-col ipo-in">
+        <h4>Input</h4>
+        <ul>
+          <li>Tabel gabungan supervisi (Tahap 3)</li>
+          <li>Nomor & tanggal BA</li>
+          <li>Identitas tim supervisi (nama, NIP, jabatan)</li>
+          <li>Identitas pendamping / pemohon</li>
+          <li>Titik ikat + koordinat acuan</li>
+          <li>Luas hasil + panjang batas hasil</li>
+          <li>Rincian tanda batas terpasang</li>
+          <li>Narasi toleransi & kesimpulan</li>
+          <li>Nama pejabat penandatangan & jabatan</li>
+        </ul>
+      </div>
+      <div class="ipo-col ipo-proc">
+        <h4>Proses</h4>
+        <ul>
+          <li>Isi template BA DOCX (placeholder otomatis)</li>
+          <li>Generate tabel gabungan instruksi-pelaksanaan-supervisi</li>
+          <li>Render layout peta supervisi final</li>
+          <li>Ekspor geodata final</li>
+          <li>Paketkan semua output ke ZIP</li>
+        </ul>
+      </div>
+      <div class="ipo-col ipo-out">
+        <h4>Output</h4>
+        <ul>
+          <li>📄 DOCX Berita Acara Supervisi</li>
+          <li>🗺️ PDF Peta Supervisi (layout baku)</li>
+          <li>📍 Shapefile final (point/line/polygon)</li>
+          <li>📦 ZIP paket arsip digital kegiatan</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════ KAMUS DATA ════════════════════════ -->
+<div id="datadict" class="section">
+  <div class="card">
+    <div class="card-title">🗂️ Kamus Data – ID Konsisten Lintas Tahap</div>
+    <table>
+      <tr><th>Field</th><th>Tipe</th><th>Sumber</th><th>Dipakai di Tahap</th><th>Keterangan</th></tr>
+      <tr>
+        <td><code>ID_PERMOHONAN</code></td><td>Text</td>
+        <td><span class="dict-tag dt-auto">Auto</span></td>
+        <td>-2 → 4</td><td>Format: BPKH-XI-{TAHUN}-{SEQ}</td>
+      </tr>
+      <tr>
+        <td><code>ID_SEGMEN</code></td><td>Text</td>
+        <td><span class="dict-tag dt-auto">Auto</span></td>
+        <td>-1 → 1</td><td>Turunan dari ID_PERMOHONAN + urutan segmen</td>
+      </tr>
+      <tr>
+        <td><code>ID_TITIK</code></td><td>Text</td>
+        <td><span class="dict-tag dt-auto">Auto</span></td>
+        <td>0 → 4</td><td>Nomor titik unik, konsisten dari instruksi sampai BA</td>
+      </tr>
+      <tr>
+        <td><code>nama_titik</code></td><td>Text</td>
+        <td><span class="dict-tag dt-manual">Manual</span></td>
+        <td>0 → 4</td><td>Nama patok (contoh: CR.1, B/HL.CR.1)</td>
+      </tr>
+      <tr>
+        <td><code>tipe_segmen</code></td><td>Enum</td>
+        <td><span class="dict-tag dt-auto">Auto GIS</span></td>
+        <td>-1 → 1</td><td>alam / luar / sekutu / sendiri</td>
+      </tr>
+      <tr>
+        <td><code>x_instruksi</code></td><td>Decimal</td>
+        <td><span class="dict-tag dt-auto">Auto GIS</span></td>
+        <td>0 → 4</td><td>Koordinat UTM mT dari instruksi kerja</td>
+      </tr>
+      <tr>
+        <td><code>y_instruksi</code></td><td>Decimal</td>
+        <td><span class="dict-tag dt-auto">Auto GIS</span></td>
+        <td>0 → 4</td><td>Koordinat UTM mS dari instruksi kerja</td>
+      </tr>
+      <tr>
+        <td><code>x_pelaksanaan</code></td><td>Decimal</td>
+        <td><span class="dict-tag dt-manual">Input Kobo</span></td>
+        <td>3 → 4</td><td>Koordinat UTM mT hasil pelaksanaan lapangan</td>
+      </tr>
+      <tr>
+        <td><code>y_pelaksanaan</code></td><td>Decimal</td>
+        <td><span class="dict-tag dt-manual">Input Kobo</span></td>
+        <td>3 → 4</td><td>Koordinat UTM mS hasil pelaksanaan lapangan</td>
+      </tr>
+      <tr>
+        <td><code>x_supervisi</code></td><td>Decimal</td>
+        <td><span class="dict-tag dt-manual">Input Kobo</span></td>
+        <td>3 → 4</td><td>Koordinat UTM mT hasil supervisi</td>
+      </tr>
+      <tr>
+        <td><code>y_supervisi</code></td><td>Decimal</td>
+        <td><span class="dict-tag dt-manual">Input Kobo</span></td>
+        <td>3 → 4</td><td>Koordinat UTM mS hasil supervisi</td>
+      </tr>
+      <tr>
+        <td><code>metode_koordinat</code></td><td>Enum</td>
+        <td><span class="dict-tag dt-manual">Input Kobo</span></td>
+        <td>3</td><td>gps_otomatis / manual_utm</td>
+      </tr>
+      <tr>
+        <td><code>jarak_deviasi_m</code></td><td>Decimal</td>
+        <td><span class="dict-tag dt-calc">Kalkulasi</span></td>
+        <td>3 → 4</td><td>Jarak instruksi vs supervisi (meter)</td>
+      </tr>
+      <tr>
+        <td><code>status_validasi</code></td><td>Enum</td>
+        <td><span class="dict-tag dt-calc">Kalkulasi + Override</span></td>
+        <td>3 → 4</td><td>Valid / Cek Validasi / Tidak Ditemukan</td>
+      </tr>
+      <tr>
+        <td><code>keterangan</code></td><td>Text</td>
+        <td><span class="dict-tag dt-manual">Input Kobo</span></td>
+        <td>3 → 4</td><td>Catatan lapangan; "s.d.a" diperbolehkan</td>
+      </tr>
+      <tr>
+        <td><code>azimuth</code></td><td>Decimal</td>
+        <td><span class="dict-tag dt-auto">Auto GIS</span></td>
+        <td>0 → 1</td><td>Derajat dari titik sebelumnya</td>
+      </tr>
+      <tr>
+        <td><code>jarak_trayek_m</code></td><td>Decimal</td>
+        <td><span class="dict-tag dt-auto">Auto GIS</span></td>
+        <td>0 → 1</td><td>Jarak datar titik-ke-titik (meter)</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card blue">
+    <div class="card-title">📌 Aturan Placeholder Template DOCX</div>
+    <table>
+      <tr><th>Placeholder</th><th>Diisi dari</th><th>Tahap</th></tr>
+      <tr><td><code>{nomor_ba}</code></td><td>Input manual (form HTML)</td><td>4</td></tr>
+      <tr><td><code>{nomor_instruksi}</code></td><td>Input manual (form HTML)</td><td>1</td></tr>
+      <tr><td><code>{nama_kth}</code></td><td>ID_PERMOHONAN chain</td><td>1, 4</td></tr>
+      <tr><td><code>{tanggal_ba}</code></td><td>Input manual</td><td>4</td></tr>
+      <tr><td><code>{tim_supervisi}</code></td><td>Input manual (tabel anggota tim)</td><td>4</td></tr>
+      <tr><td><code>{tabel_koordinat}</code></td><td>Auto dari tabel gabungan Kobo</td><td>4</td></tr>
+      <tr><td><code>{luas_hasil_ha}</code></td><td>Kalkulasi GIS / input manual</td><td>4</td></tr>
+      <tr><td><code>{panjang_batas_m}</code></td><td>Kalkulasi GIS / input manual</td><td>4</td></tr>
+      <tr><td><code>{rincian_segmen}</code></td><td>Auto dari rekap tipe segmen</td><td>4</td></tr>
+      <tr><td><code>{tanda_batas}</code></td><td>Input manual</td><td>4</td></tr>
+      <tr><td><code>{pejabat_penandatangan}</code></td><td>Input manual</td><td>1, 4</td></tr>
+      <tr><td><code>{titik_ikat}</code></td><td>Input manual / data kontrol</td><td>1, 4</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════ PORTAL UI ═════════════════════════ -->
+<div id="portal" class="section">
+  <div class="card">
+    <div class="card-title">🖥️ Rancangan Portal Satu Halaman</div>
+    <p style="line-height:1.7; margin-bottom:14px">
+      Satu halaman HTML tunggal memuat semua modul sebagai <strong>tab/menu</strong>. Setiap modul berdiri sendiri, tidak bergantung server (pure client-side), namun data antar-modul bisa di-pass melalui file unduhan/upload.
+    </p>
+    <table>
+      <tr><th>Menu</th><th>Nama Modul</th><th>Aksi Utama</th><th>Output</th></tr>
+      <tr>
+        <td>🔢 Menu 0</td>
+        <td>Permohonan Masuk</td>
+        <td>Upload geometri + isi metadata pemohon</td>
+        <td>Nomor registrasi + paket berkas tervalidasi</td>
+      </tr>
+      <tr>
+        <td>🔢 Menu 1</td>
+        <td>Segmentasi & Trayek GIS</td>
+        <td>Upload base data + geometri → jalankan mesin GIS</td>
+        <td>Layer segmen + CSV master instruksi + preview peta</td>
+      </tr>
+      <tr>
+        <td>🔢 Menu 2</td>
+        <td>Generator Instruksi Kerja</td>
+        <td>Upload CSV master + isi metadata → generate</td>
+        <td>DOCX Instruksi + PDF Peta + XLSForm Kobo</td>
+      </tr>
+      <tr>
+        <td>🔢 Menu 3</td>
+        <td>Generator Kobo Supervisi</td>
+        <td>Upload CSV insker → generate XLSForm mandiri</td>
+        <td>XLSX Kobo siap upload (tanpa dependency media)</td>
+      </tr>
+      <tr>
+        <td>🔢 Menu 4</td>
+        <td>Rekap Supervisi</td>
+        <td>Upload export Kobo → proses tabel gabungan</td>
+        <td>XLSX tabel gabungan instruksi+pelaksanaan+supervisi</td>
+      </tr>
+      <tr>
+        <td>🔢 Menu 5</td>
+        <td>Generator Berita Acara</td>
+        <td>Upload rekap + isi metadata BA → generate</td>
+        <td>DOCX BA + PDF Peta Supervisi + Geodata Final + ZIP</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card blue">
+    <div class="card-title">📐 Wireframe Layout Portal</div>
+    <div style="background:#263238;color:#eceff1;border-radius:8px;padding:20px;font-family:monospace;font-size:12px;line-height:1.8">
+      <div style="color:#80cbc4;font-weight:700">┌─────────────────────────────────────────────────────┐</div>
+      <div style="color:#80cbc4">│  SUDESKA PORTAL – BPKH Wilayah XI                   │</div>
+      <div style="color:#80cbc4;font-weight:700">├─────────────────────────────────────────────────────┤</div>
+      <div style="color:#b2dfdb">│ [Menu 0] [Menu 1] [Menu 2] [Menu 3] [Menu 4] [Menu 5]│ ← Tab navigasi</div>
+      <div style="color:#80cbc4;font-weight:700">├─────────────────────────────────────────────────────┤</div>
+      <div style="color:#fff">│                                                      │</div>
+      <div style="color:#fff">│  ┌─ Form Input Kiri ────┐  ┌─ Preview Output Kanan ─┐│</div>
+      <div style="color:#fff">│  │ • Upload file        │  │ • Preview tabel        ││</div>
+      <div style="color:#fff">│  │ • Isi metadata       │  │ • Preview peta (jika   ││</div>
+      <div style="color:#fff">│  │ • Parameter opsional │  │   ada koordinat)       ││</div>
+      <div style="color:#fff">│  │                      │  │ • Status validasi      ││</div>
+      <div style="color:#fff">│  │ [Generate & Download]│  │                        ││</div>
+      <div style="color:#fff">│  └──────────────────────┘  └────────────────────────┘│</div>
+      <div style="color:#fff">│                                                      │</div>
+      <div style="color:#80cbc4;font-weight:700">├─────────────────────────────────────────────────────┤</div>
+      <div style="color:#b2dfdb">│ Output: [📄 DOCX] [🗺️ PDF] [📍 Geodata] [📦 ZIP]   │</div>
+      <div style="color:#80cbc4;font-weight:700">└─────────────────────────────────────────────────────┘</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔗 Alur Data Antar Modul</div>
+    <table>
+      <tr><th>Dari Modul</th><th>Output yang Di-pass</th><th>Ke Modul</th><th>Cara Pass</th></tr>
+      <tr><td>Menu 0 (Permohonan)</td><td>ID Permohonan + geometri tervalidasi</td><td>Menu 1</td><td>Upload file JSON/SHP</td></tr>
+      <tr><td>Menu 1 (Segmentasi GIS)</td><td>CSV master instruksi + layer segmen</td><td>Menu 2</td><td>Download → Upload</td></tr>
+      <tr><td>Menu 2 (Generator Instruksi)</td><td>XLSForm Kobo + DOCX + PDF</td><td>Menu 3 / Kobo</td><td>Download → Upload ke Kobo</td></tr>
+      <tr><td>Menu 3 (Generator Kobo)</td><td>XLSForm mandiri</td><td>KoboToolbox</td><td>Upload ke Kobo platform</td></tr>
+      <tr><td>KoboToolbox</td><td>Export CSV/XLSX hasil submit</td><td>Menu 4</td><td>Download dari Kobo → Upload</td></tr>
+      <tr><td>Menu 4 (Rekap)</td><td>XLSX tabel gabungan</td><td>Menu 5</td><td>Download → Upload</td></tr>
+      <tr><td>Menu 5 (Generator BA)</td><td>DOCX BA + PDF peta + geodata + ZIP</td><td>Arsip</td><td>Download final</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════ TECH STACK ════════════════════════ -->
+<div id="techstack" class="section">
+  <div class="card">
+    <div class="card-title">⚙️ Tech Stack per Modul</div>
+    <div class="stack-grid">
+      <div class="stack-item">
+        <h4>📄 Generator DOCX</h4>
+        <ul>
+          <li>docxtemplater (JS library)</li>
+          <li>PizZip (untuk buka .docx template)</li>
+          <li>FileSaver.js (download)</li>
+          <li>Template .docx dengan placeholder {field}</li>
+        </ul>
+      </div>
+      <div class="stack-item">
+        <h4>📊 Generator XLSX / XLSForm</h4>
+        <ul>
+          <li>SheetJS xlsx@0.18.5 (sudah ada)</li>
+          <li>FileSaver.js (sudah ada)</li>
+          <li>Pure JavaScript</li>
+        </ul>
+      </div>
+      <div class="stack-item">
+        <h4>🗺️ Mesin Peta & Geodata</h4>
+        <ul>
+          <li>Leaflet.js (preview peta interaktif)</li>
+          <li>Turf.js (kalkulasi spasial: buffer, intersect, distance)</li>
+          <li>shpwrite (export Shapefile dari JS)</li>
+          <li>atau: ArcGIS untuk peta formal</li>
+        </ul>
+      </div>
+      <div class="stack-item">
+        <h4>🖨️ PDF Output</h4>
+        <ul>
+          <li>Jika via HTML: html2canvas + jsPDF</li>
+          <li>Jika peta formal: ArcGIS layout export</li>
+          <li>Print CSS sebagai fallback cepat</li>
+        </ul>
+      </div>
+      <div class="stack-item">
+        <h4>📦 Packaging</h4>
+        <ul>
+          <li>JSZip (buat file ZIP output)</li>
+          <li>FileSaver.js (download ZIP)</li>
+        </ul>
+      </div>
+      <div class="stack-item">
+        <h4>🌐 Hosting & Deployment</h4>
+        <ul>
+          <li>GitHub Pages (tanpa server)</li>
+          <li>Pure client-side HTML/JS/CSS</li>
+          <li>Tidak butuh backend / database</li>
+        </ul>
+      </div>
+      <div class="stack-item">
+        <h4>📱 KoboToolbox</h4>
+        <ul>
+          <li>XLSForm (XLSX) sebagai definisi form</li>
+          <li>KoboCollect (Android) untuk lapangan</li>
+          <li>Export CSV/XLSX hasil submit</li>
+        </ul>
+      </div>
+      <div class="stack-item">
+        <h4>🗂️ Format Data Spasial</h4>
+        <ul>
+          <li>GeoJSON (transfer antar modul)</li>
+          <li>Shapefile ZIP (output formal)</li>
+          <li>CSV koordinat (kompatibel ArcGIS/QGIS)</li>
+          <li>KML (opsional, untuk Google Earth)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card blue">
+    <div class="card-title">📌 Matriks Kemampuan Modul</div>
+    <table class="matrix">
+      <tr>
+        <th>Fitur</th>
+        <th>Menu 0<br>Permohonan</th>
+        <th>Menu 1<br>Segmentasi</th>
+        <th>Menu 2<br>Instruksi</th>
+        <th>Menu 3<br>Kobo Gen</th>
+        <th>Menu 4<br>Rekap</th>
+        <th>Menu 5<br>BA Final</th>
+      </tr>
+      <tr>
+        <td>Upload geometri spasial</td>
+        <td class="ok">✔</td><td class="ok">✔</td><td class="partial">~</td>
+        <td class="no">—</td><td class="no">—</td><td class="no">—</td>
+      </tr>
+      <tr>
+        <td>Kalkulasi spasial (buffer/intersect)</td>
+        <td class="no">—</td><td class="ok">✔</td><td class="no">—</td>
+        <td class="no">—</td><td class="no">—</td><td class="no">—</td>
+      </tr>
+      <tr>
+        <td>Preview peta interaktif</td>
+        <td class="ok">✔</td><td class="ok">✔</td><td class="ok">✔</td>
+        <td class="no">—</td><td class="partial">~</td><td class="ok">✔</td>
+      </tr>
+      <tr>
+        <td>Generate DOCX</td>
+        <td class="no">—</td><td class="no">—</td><td class="ok">✔</td>
+        <td class="no">—</td><td class="no">—</td><td class="ok">✔</td>
+      </tr>
+      <tr>
+        <td>Generate XLSX / XLSForm</td>
+        <td class="no">—</td><td class="partial">~</td><td class="ok">✔</td>
+        <td class="ok">✔</td><td class="ok">✔</td><td class="ok">✔</td>
+      </tr>
+      <tr>
+        <td>Generate Shapefile / Geodata</td>
+        <td class="no">—</td><td class="ok">✔</td><td class="ok">✔</td>
+        <td class="no">—</td><td class="partial">~</td><td class="ok">✔</td>
+      </tr>
+      <tr>
+        <td>Generate PDF peta</td>
+        <td class="no">—</td><td class="partial">~</td><td class="ok">✔</td>
+        <td class="no">—</td><td class="no">—</td><td class="ok">✔</td>
+      </tr>
+      <tr>
+        <td>Output ZIP paket</td>
+        <td class="no">—</td><td class="no">—</td><td class="ok">✔</td>
+        <td class="no">—</td><td class="no">—</td><td class="ok">✔</td>
+      </tr>
+    </table>
+    <p style="font-size:11px;color:#78909c;margin-top:8px">✔ = penuh &nbsp;|&nbsp; ~ = parsial/opsional &nbsp;|&nbsp; — = tidak ada</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════ RISIKO ════════════════════════════ -->
+<div id="risk" class="section">
+  <div class="card red">
+    <div class="card-title">⚠️ Daftar Risiko & Mitigasi</div>
+    <table>
+      <tr><th>No</th><th>Risiko</th><th>Dampak</th><th>Probabilitas</th><th>Mitigasi</th></tr>
+      <tr class="risk-high">
+        <td>1</td>
+        <td>Mesin GIS segmentasi mengklasifikasi segmen salah</td>
+        <td>Tinggi – titik instruksi keliru, data lapangan salah</td>
+        <td>Sedang</td>
+        <td>QA/QC manual wajib sebelum generate instruksi; tambah step review visual peta segmen</td>
+      </tr>
+      <tr class="risk-high">
+        <td>2</td>
+        <td>ID_TITIK tidak konsisten antar modul</td>
+        <td>Tinggi – tabel gabungan supervisi tidak bisa di-join</td>
+        <td>Sedang</td>
+        <td>Paksa ID_TITIK dari Tahap 0, beku di seluruh siklus, tidak boleh diedit manual</td>
+      </tr>
+      <tr class="risk-med">
+        <td>3</td>
+        <td>Koordinat GPS lapangan deviasi besar</td>
+        <td>Sedang – status validasi "Cek Validasi" menumpuk</td>
+        <td>Tinggi</td>
+        <td>Tetapkan ambang toleransi jelas; tambah kolom alasan override di rekap</td>
+      </tr>
+      <tr class="risk-med">
+        <td>4</td>
+        <td>Template DOCX berubah tanpa sinkronisasi placeholder</td>
+        <td>Sedang – generator DOCX error atau output berantakan</td>
+        <td>Rendah</td>
+        <td>Versi template DOCX terkontrol; changelog placeholder wajib</td>
+      </tr>
+      <tr class="risk-med">
+        <td>5</td>
+        <td>Browser tidak mendukung library JS tertentu</td>
+        <td>Sedang – form tidak bisa generate output</td>
+        <td>Rendah</td>
+        <td>Test di Chrome/Edge/Firefox sebelum deploy; tambah pesan error jelas ke user</td>
+      </tr>
+      <tr class="risk-low">
+        <td>6</td>
+        <td>Export Kobo format berubah</td>
+        <td>Rendah – parser rekap perlu update</td>
+        <td>Rendah</td>
+        <td>Normalkan header kolom Kobo saat import; tambah step mapping header</td>
+      </tr>
+      <tr class="risk-low">
+        <td>7</td>
+        <td>File geometri upload rusak / format salah</td>
+        <td>Rendah – modul tidak bisa proses</td>
+        <td>Sedang</td>
+        <td>Validasi format & geometri saat upload; tampilkan pesan error spesifik</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════ ROADMAP ═══════════════════════════ -->
+<div id="roadmap" class="section">
+  <div class="card">
+    <div class="card-title">🗓️ Roadmap Implementasi</div>
+    <table>
+      <tr><th>Sprint</th><th>Fokus</th><th>Target Output</th><th>Modul</th><th>Status</th></tr>
+      <tr>
+        <td><strong>✅ Done</strong></td>
+        <td>Generator Kobo Supervisi (Mandiri)</td>
+        <td>setup_project_sudeska.html live di GitHub Pages</td>
+        <td>Menu 3</td>
+        <td><span class="phase-badge ph-green">SELESAI</span></td>
+      </tr>
+      <tr>
+        <td><strong>Sprint 1</strong></td>
+        <td>Finalisasi kamus data & skema tabel gabungan</td>
+        <td>Spesifikasi kolom final disetujui</td>
+        <td>Fondasi semua</td>
+        <td><span class="phase-badge ph-yellow">AKTIF</span></td>
+      </tr>
+      <tr>
+        <td><strong>Sprint 2</strong></td>
+        <td>Modul Rekap Supervisi dari Kobo Export</td>
+        <td>Menu 4 – XLSX tabel gabungan otomatis</td>
+        <td>Menu 4</td>
+        <td><span class="phase-badge ph-grey">PLANNED</span></td>
+      </tr>
+      <tr>
+        <td><strong>Sprint 3</strong></td>
+        <td>Generator Berita Acara DOCX</td>
+        <td>Menu 5 – DOCX BA dari template + rekap Kobo</td>
+        <td>Menu 5</td>
+        <td><span class="phase-badge ph-grey">PLANNED</span></td>
+      </tr>
+      <tr>
+        <td><strong>Sprint 4</strong></td>
+        <td>Modul Peta Supervisi (PDF + Geodata)</td>
+        <td>Menu 5 – PDF peta + Shapefile final</td>
+        <td>Menu 5 (spasial)</td>
+        <td><span class="phase-badge ph-grey">PLANNED</span></td>
+      </tr>
+      <tr>
+        <td><strong>Sprint 5</strong></td>
+        <td>Generator Instruksi Kerja</td>
+        <td>Menu 2 – DOCX + PDF + XLSForm dari CSV master</td>
+        <td>Menu 2</td>
+        <td><span class="phase-badge ph-grey">PLANNED</span></td>
+      </tr>
+      <tr>
+        <td><strong>Sprint 6</strong></td>
+        <td>Mesin Segmentasi GIS (HTML + Turf.js)</td>
+        <td>Menu 1 – segmentasi & generate titik otomatis</td>
+        <td>Menu 1</td>
+        <td><span class="phase-badge ph-grey">PLANNED</span></td>
+      </tr>
+      <tr>
+        <td><strong>Sprint 7</strong></td>
+        <td>Modul Permohonan + Portal Satu Halaman</td>
+        <td>Menu 0 + integrasi semua menu ke 1 portal</td>
+        <td>Menu 0 + Portal</td>
+        <td><span class="phase-badge ph-grey">PLANNED</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card blue">
+    <div class="card-title">🚀 Definisi Selesai per Sprint</div>
+    <table>
+      <tr><th>Sprint</th><th>Kriteria Selesai</th></tr>
+      <tr><td>Sprint 1</td><td>Dokumen spesifikasi kolom disetujui; nama field baku terdaftar di kamus data</td></tr>
+      <tr><td>Sprint 2</td><td>Upload export Kobo → XLSX tabel gabungan terisi benar untuk 10 titik test</td></tr>
+      <tr><td>Sprint 3</td><td>DOCX BA tergenerate lengkap: nomor, metadata, tabel koordinat, penutup, TTD</td></tr>
+      <tr><td>Sprint 4</td><td>PDF peta supervisi tercetak dengan layout baku; Shapefile point/line/polygon valid di QGIS/ArcGIS</td></tr>
+      <tr><td>Sprint 5</td><td>DOCX instruksi kerja + XLSForm Kobo tergenerate otomatis dari CSV master instruksi</td></tr>
+      <tr><td>Sprint 6</td><td>Upload geometri line → segmen terklasifikasi + titik terbentuk + CSV master tersedia</td></tr>
+      <tr><td>Sprint 7</td><td>Semua menu dalam 1 halaman portal; alur end-to-end bisa dijalankan dari permohonan sampai BA</td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- end .content -->
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>
