@@ -457,9 +457,9 @@ function buildXLSForm(skala, namaKTH, utmZone, namaProject, palRows) {
     ["decimal","x_pelaksanaan","X Pelaksanaan (UTM meter)","Contoh: 400388.003","yes","X UTM wajib diisi","","","","","${metode_koordinat} = 'manual_utm' or ${metode_koordinat} = ''","",""],
     ["decimal","y_pelaksanaan","Y Pelaksanaan (UTM meter)","Contoh: 9220439.284","yes","Y UTM wajib diisi","","","","","${metode_koordinat} = 'manual_utm' or ${metode_koordinat} = ''","",""],
 
-    // ── Hasil Penataan Batas (opsional, untuk format laporan) ──────────────────
-    ["decimal","x_penataan_batas","X Hasil Penataan Batas (UTM meter)","Opsional untuk format laporan","","","","","","","","",""],
-    ["decimal","y_penataan_batas","Y Hasil Penataan Batas (UTM meter)","Opsional untuk format laporan","","","","","","","","",""],
+    // ── Hasil Penataan Batas (hidden, untuk format laporan) ────────────────────
+    ["hidden","x_penataan_batas","X Hasil Penataan Batas (UTM meter)","","","","","","","","","",""],
+    ["hidden","y_penataan_batas","Y Hasil Penataan Batas (UTM meter)","","","","","","","","","",""],
 
     // ── Foto & Catatan ──────────────────────────────────────────────────────────
     ["image","foto_pal","Foto PAL","","","","","","","","","",""],
