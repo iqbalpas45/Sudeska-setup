@@ -1,0 +1,17 @@
+TEMPLATE URL PREFILL FORM PETUGAS
+===================================
+
+Format:
+https://ee.kobotoolbox.org/x/FORM_ID?d[skala_peta]=SKALA&d[nama_kth_prefill]=NAMA_KTH
+
+Contoh penggunaan:
+https://ee.kobotoolbox.org/x/abc12345?d[skala_peta]=5000&d[nama_kth_prefill]=KTH%20Maju
+https://ee.kobotoolbox.org/x/abc12345?d[skala_peta]=10000&d[nama_kth_prefill]=KTH%20Sejahtera
+https://ee.kobotoolbox.org/x/abc12345?d[skala_peta]=25000&d[nama_kth_prefill]=KTH%20Lestari
+
+Keterangan parameter:
+  FORM_ID          → ganti dengan Form ID dari halaman Deploy KoboToolbox
+  skala_peta       → skala peta yang digunakan (angka saja: 5000 / 10000 / 25000)
+  nama_kth_prefill → nama KTH/kelompok tani hutan (spasi diganti %20)
+
+Nomor urut PAL diisi langsung oleh petugas di form (wajib angka sesuai master_insker.csv).
