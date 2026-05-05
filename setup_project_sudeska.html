@@ -492,7 +492,7 @@ function buildXLSForm(skala, namaKTH, utmZone, namaProject) {
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([H,...S]), "survey");
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(C),        "choices");
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(SET),      "settings");
-  return XLSX.write(wb, { type:'arraybuffer', bookType:'xlsx' });
+  return XLSX.write(wb, { type:'array', bookType:'xlsx' });
 }
 
 // ─────────────────────────────────────────────
@@ -544,47 +544,52 @@ function showError(msg) {
 }
 
 async function generate() {
-  document.getElementById('output_box').style.display = 'none';
+  try {
+    document.getElementById('output_box').style.display = 'none';
 
-  const namaProject = document.getElementById('nama_project').value.trim();
-  const namaKTH     = document.getElementById('nama_kth').value.trim();
-  const skala       = document.getElementById('skala').value;
-  const utmZone     = document.getElementById('utm_zone').value;
-  const palData     = getPALData();
+    const namaProject = document.getElementById('nama_project').value.trim();
+    const namaKTH     = document.getElementById('nama_kth').value.trim();
+    const skala       = document.getElementById('skala').value;
+    const utmZone     = document.getElementById('utm_zone').value;
+    const palData     = getPALData();
 
-  if (!namaProject) { showError('⚠ Nama Project wajib diisi!'); return; }
-  if (!namaKTH)     { showError('⚠ Nama KTH wajib diisi!'); return; }
-  if (palData.length === 0) { showError('⚠ Tambahkan minimal 1 titik PAL!'); return; }
-  const kosong = palData.find(d => !d.pal || !d.x_insker || !d.y_insker);
-  if (kosong) { showError('⚠ Pastikan semua titik PAL sudah terisi Nama PAL, X, dan Y Insker!'); return; }
+    if (!namaProject) { showError('⚠ Nama Project wajib diisi!'); return; }
+    if (!namaKTH)     { showError('⚠ Nama KTH wajib diisi!'); return; }
+    if (palData.length === 0) { showError('⚠ Tambahkan minimal 1 titik PAL!'); return; }
+    const kosong = palData.find(d => !d.pal || !d.x_insker || !d.y_insker);
+    if (kosong) { showError('⚠ Pastikan semua titik PAL sudah terisi Nama PAL, X, dan Y Insker!'); return; }
 
-  const xlsxName = `Sudeska_RT_${namaProject}.xlsx`;
-  const csvName  = 'master_insker.csv';
-  const txtName  = 'panduan_upload.txt';
-  const zipName  = `${namaProject}_Sudeska.zip`;
+    const xlsxName = `Sudeska_RT_${namaProject}.xlsx`;
+    const csvName  = 'master_insker.csv';
+    const txtName  = 'panduan_upload.txt';
+    const zipName  = `${namaProject}_Sudeska.zip`;
 
-  const xlsxBuf = buildXLSForm(skala, namaKTH, utmZone, namaProject);
-  const csvStr  = buildCSV(palData);
-  const txtStr  = buildPanduan(namaProject, namaKTH, skala, utmZone);
+    const xlsxBuf = buildXLSForm(skala, namaKTH, utmZone, namaProject);
+    const csvStr  = buildCSV(palData);
+    const txtStr  = buildPanduan(namaProject, namaKTH, skala, utmZone);
 
-  const zip = new JSZip();
-  const folder = zip.folder(`${namaProject}_Sudeska`);
-  folder.file(xlsxName, xlsxBuf);
-  folder.file(csvName,  csvStr);
-  folder.file(txtName,  txtStr);
+    const zip = new JSZip();
+    const folder = zip.folder(`${namaProject}_Sudeska`);
+    folder.file(xlsxName, xlsxBuf);
+    folder.file(csvName,  csvStr);
+    folder.file(txtName,  txtStr);
 
-  const blob = await zip.generateAsync({ type:'blob', compression:'DEFLATE' });
-  saveAs(blob, zipName);
+    const blob = await zip.generateAsync({ type:'blob', compression:'DEFLATE' });
+    saveAs(blob, zipName);
 
-  // Tampilkan info output
-  const fileList = document.getElementById('file_list');
-  fileList.innerHTML = `
-    <li><span class="icon">📊</span> <strong>${xlsxName}</strong> – Upload ke KoboToolbox sebagai form</li>
-    <li><span class="icon">📄</span> <strong>${csvName}</strong> – Upload ke Settings → Media (${palData.length} titik PAL)</li>
-    <li><span class="icon">📝</span> <strong>${txtName}</strong> – Panduan langkah upload</li>
-  `;
-  document.getElementById('output_box').style.display = 'block';
-  document.getElementById('output_box').scrollIntoView({ behavior:'smooth', block:'start' });
+    // Tampilkan info output
+    const fileList = document.getElementById('file_list');
+    fileList.innerHTML = `
+      <li><span class="icon">📊</span> <strong>${xlsxName}</strong> – Upload ke KoboToolbox sebagai form</li>
+      <li><span class="icon">📄</span> <strong>${csvName}</strong> – Upload ke Settings → Media (${palData.length} titik PAL)</li>
+      <li><span class="icon">📝</span> <strong>${txtName}</strong> – Panduan langkah upload</li>
+    `;
+    document.getElementById('output_box').style.display = 'block';
+    document.getElementById('output_box').scrollIntoView({ behavior:'smooth', block:'start' });
+  } catch (err) {
+    console.error(err);
+    showError('⚠ Gagal membuat file. Coba refresh halaman lalu ulangi.');
+  }
 }
 
 // ─────────────────────────────────────────────
