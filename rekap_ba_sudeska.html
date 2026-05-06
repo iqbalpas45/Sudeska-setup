@@ -160,7 +160,7 @@
           <button id="btnDownload" class="btn secondary" type="button" disabled>Download XLSX Final</button>
         </div>
         <p class="hint" style="margin-top:10px;">
-          Format output: No, Nomor Titik/Patok, Instruksi (mT/mS), Hasil Penataan (mT/mS), Hasil Supervisi (mT/mS), Keterangan.
+          Format output disamakan dengan BA: Nomor Titik/Patok, Instruksi Kerja (mT/mS), Hasil Penataan Batas (mT/mS), Hasil Supervisi (mT/mS), Keterangan.
         </p>
       </div>
 
@@ -179,6 +179,17 @@
 
   <script>
     let finalRows = [];
+    const BA_COLUMNS = [
+      'No',
+      'Nomor Titik / Patok',
+      'Instruksi Kerja mT',
+      'Instruksi Kerja mS',
+      'Hasil Penataan Batas mT',
+      'Hasil Penataan Batas mS',
+      'Hasil Supervisi mT',
+      'Hasil Supervisi mS',
+      'Keterangan'
+    ];
 
     const els = {
       file: document.getElementById('koboFile'),
@@ -193,6 +204,11 @@
       if (v === null || v === undefined || String(v).trim() === '') return '';
       const n = Number(v);
       return Number.isFinite(n) ? n : '';
+    };
+
+    const fmtCoord = (v) => {
+      if (v === '' || v === null || v === undefined) return '';
+      return Number(v).toFixed(4);
     };
 
     const pick = (obj, keys, fallback = '') => {
@@ -225,38 +241,69 @@
         return {
           No: idx + 1,
           'Nomor Titik / Patok': nomorTitik,
-          'Instruksi mT': instruksiMt,
-          'Instruksi mS': instruksiMs,
-          'Hasil Penataan mT': penataanMt,
-          'Hasil Penataan mS': penataanMs,
-          'Hasil Supervisi mT': supervisiMt,
-          'Hasil Supervisi mS': supervisiMs,
+          'Instruksi Kerja mT': fmtCoord(instruksiMt),
+          'Instruksi Kerja mS': fmtCoord(instruksiMs),
+          'Hasil Penataan Batas mT': fmtCoord(penataanMt),
+          'Hasil Penataan Batas mS': fmtCoord(penataanMs),
+          'Hasil Supervisi mT': fmtCoord(supervisiMt),
+          'Hasil Supervisi mS': fmtCoord(supervisiMs),
           Keterangan: keterangan
         };
       }).filter(r => String(r['Nomor Titik / Patok']).trim() !== '');
     }
 
     function renderPreview(rows) {
-      const headers = [
+      const headTop = [
         'No',
         'Nomor Titik / Patok',
-        'Instruksi mT',
-        'Instruksi mS',
-        'Hasil Penataan mT',
-        'Hasil Penataan mS',
-        'Hasil Supervisi mT',
-        'Hasil Supervisi mS',
+        'Instruksi Kerja',
+        'Instruksi Kerja',
+        'Hasil Penataan Batas',
+        'Hasil Penataan Batas',
+        'Hasil Supervisi',
+        'Hasil Supervisi',
         'Keterangan'
       ];
+      const headSub = ['', '', 'mT', 'mS', 'mT', 'mS', 'mT', 'mS', ''];
 
-      els.thead.innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+      els.thead.innerHTML =
+        '<tr>' + headTop.map(h => `<th>${h}</th>`).join('') + '</tr>' +
+        '<tr>' + headSub.map(h => `<th>${h}</th>`).join('') + '</tr>';
       els.tbody.innerHTML = rows.slice(0, 120).map(r =>
-        '<tr>' + headers.map(h => `<td>${r[h] ?? ''}</td>`).join('') + '</tr>'
+        '<tr>' + BA_COLUMNS.map(h => `<td>${r[h] ?? ''}</td>`).join('') + '</tr>'
       ).join('');
     }
 
     function downloadFinal(rows) {
-      const ws = XLSX.utils.json_to_sheet(rows);
+      const aoa = [
+        ['No', 'Nomor Titik / Patok', 'Instruksi Kerja', '', 'Hasil Penataan Batas', '', 'Hasil Supervisi', '', 'Keterangan'],
+        ['', '', 'mT', 'mS', 'mT', 'mS', 'mT', 'mS', '']
+      ];
+      rows.forEach((r) => {
+        aoa.push(BA_COLUMNS.map((k) => r[k] ?? ''));
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 1, c: 0 } },
+        { s: { r: 0, c: 1 }, e: { r: 1, c: 1 } },
+        { s: { r: 0, c: 2 }, e: { r: 0, c: 3 } },
+        { s: { r: 0, c: 4 }, e: { r: 0, c: 5 } },
+        { s: { r: 0, c: 6 }, e: { r: 0, c: 7 } },
+        { s: { r: 0, c: 8 }, e: { r: 1, c: 8 } }
+      ];
+      ws['!cols'] = [
+        { wch: 6 },
+        { wch: 20 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 18 },
+        { wch: 18 },
+        { wch: 16 },
+        { wch: 16 },
+        { wch: 56 }
+      ];
+
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'tabel_final_ba');
 
