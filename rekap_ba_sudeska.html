@@ -186,8 +186,8 @@
       'Instruksi Kerja mS',
       'Hasil Penataan Batas mT',
       'Hasil Penataan Batas mS',
-      'Hasil Supervisi mT',
-      'Hasil Supervisi mS',
+      'Hasil Supervisi Validasi',
+      'Hasil Supervisi Jarak',
       'Keterangan'
     ];
 
@@ -234,7 +234,8 @@
         const penataanMt = toNumOrBlank(pick(r, ['out_penataan_mt', 'x_pelaksanaan_final'], ''));
         const penataanMs = toNumOrBlank(pick(r, ['out_penataan_ms', 'y_pelaksanaan_final'], ''));
 
-        const supervisiMt = pick(r, ['status_final', 'status_awal'], '');
+        const rawValidasi = String(pick(r, ['status_final', 'status_awal'], '')).trim();
+        const supervisiMt = rawValidasi.toLowerCase() === 'valid' ? 'Valid' : 'Cek Validasi';
         const supervisiMs = toNumOrBlank(pick(r, ['jarak_m', 'nilai_validasi_m'], ''));
 
         const keterangan = pick(r, ['out_keterangan_laporan', 'status_final', 'Catatan Lapangan'], '');
@@ -246,8 +247,8 @@
           'Instruksi Kerja mS': fmtCoord(instruksiMs),
           'Hasil Penataan Batas mT': fmtCoord(penataanMt),
           'Hasil Penataan Batas mS': fmtCoord(penataanMs),
-          'Hasil Supervisi mT': supervisiMt,
-          'Hasil Supervisi mS': fmtCoord(supervisiMs),
+          'Hasil Supervisi Validasi': supervisiMt,
+          'Hasil Supervisi Jarak': fmtCoord(supervisiMs),
           Keterangan: keterangan
         };
       }).filter(r => String(r['Nomor Titik / Patok']).trim() !== '');
@@ -265,7 +266,7 @@
         'Hasil Supervisi',
         'Keterangan'
       ];
-      const headSub = ['', '', 'mT', 'mS', 'mT', 'mS', 'mT', 'mS', ''];
+      const headSub = ['', '', 'mT', 'mS', 'mT', 'mS', 'Validasi', 'Jarak', ''];
 
       els.thead.innerHTML =
         '<tr>' + headTop.map(h => `<th>${h}</th>`).join('') + '</tr>' +
@@ -278,7 +279,7 @@
     function downloadFinal(rows) {
       const aoa = [
         ['No', 'Nomor Titik / Patok', 'Instruksi Kerja', '', 'Hasil Penataan Batas', '', 'Hasil Supervisi', '', 'Keterangan'],
-        ['', '', 'mT', 'mS', 'mT', 'mS', 'mT', 'mS', '']
+        ['', '', 'mT', 'mS', 'mT', 'mS', 'Validasi', 'Jarak', '']
       ];
       rows.forEach((r) => {
         aoa.push(BA_COLUMNS.map((k) => r[k] ?? ''));
