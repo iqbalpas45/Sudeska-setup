@@ -160,7 +160,7 @@
           <button id="btnDownload" class="btn secondary" type="button" disabled>Download XLSX Final</button>
         </div>
         <p class="hint" style="margin-top:10px;">
-          Format output disamakan dengan BA: Nomor Titik/Patok, Instruksi Kerja (mT/mS), Hasil Penataan Batas (mT/mS), Hasil Supervisi (mT/mS), Keterangan.
+          Format output disamakan dengan BA. Catatan: kolom Hasil Supervisi mT/mS diisi Status Validasi dan Jarak (m).
         </p>
       </div>
 
@@ -208,7 +208,8 @@
 
     const fmtCoord = (v) => {
       if (v === '' || v === null || v === undefined) return '';
-      return Number(v).toFixed(4);
+      const n = Number(v);
+      return Number.isFinite(n) ? n.toFixed(4) : String(v);
     };
 
     const pick = (obj, keys, fallback = '') => {
@@ -233,8 +234,8 @@
         const penataanMt = toNumOrBlank(pick(r, ['out_penataan_mt', 'x_pelaksanaan_final'], ''));
         const penataanMs = toNumOrBlank(pick(r, ['out_penataan_ms', 'y_pelaksanaan_final'], ''));
 
-        const supervisiMt = toNumOrBlank(pick(r, ['out_supervisi_mt', 'x_pelaksanaan_final'], ''));
-        const supervisiMs = toNumOrBlank(pick(r, ['out_supervisi_ms', 'y_pelaksanaan_final'], ''));
+        const supervisiMt = pick(r, ['status_final', 'status_awal'], '');
+        const supervisiMs = toNumOrBlank(pick(r, ['jarak_m', 'nilai_validasi_m'], ''));
 
         const keterangan = pick(r, ['out_keterangan_laporan', 'status_final', 'Catatan Lapangan'], '');
 
@@ -245,7 +246,7 @@
           'Instruksi Kerja mS': fmtCoord(instruksiMs),
           'Hasil Penataan Batas mT': fmtCoord(penataanMt),
           'Hasil Penataan Batas mS': fmtCoord(penataanMs),
-          'Hasil Supervisi mT': fmtCoord(supervisiMt),
+          'Hasil Supervisi mT': supervisiMt,
           'Hasil Supervisi mS': fmtCoord(supervisiMs),
           Keterangan: keterangan
         };
